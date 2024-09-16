@@ -1,0 +1,135 @@
+@import "rsuite/dist/rsuite.css";
+
+.chat-window {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.messages-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 2px;
+  font-size: 16px;
+  margin-top: 60px;
+  margin-bottom: 70px;
+}
+
+.user-message-container,
+.assistant-message-container {
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  margin: 4px 0;
+}
+
+.user-message-container {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.assistant-message-container {
+  align-items: flex-start;
+}
+
+.message {
+  white-space: pre-line;
+  padding: 14px;
+  margin: 2px 0;
+  border-radius: 10px;
+  clear: both;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: left;
+  position: relative;
+}
+
+.user-message {
+  background-color: #1b3875;
+  color: #ffffff;
+  border-top-right-radius: 0;
+}
+
+.assistant-message {
+  background-color: #f6f6f6;
+  border-top-left-radius: 0;
+  color: #000000;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.message-actions {
+  margin-top: 5px;
+}
+
+.message-actions button {
+  margin-right: 5px;
+  padding: 5px 10px;
+  font-size: 13px;
+  cursor: pointer;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  color: white;
+}
+
+.message-actions button:hover {
+  background-color: #0056b3;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+.input-area {
+  font-size: 15px;
+  padding: 10px;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  border-top: 1px solid #ccc;
+  background: #fff;
+  position: fixed;
+  width: calc(100% - 40px);
+  box-sizing: border-box;
+}
+
+.input-area input {
+  flex: 1;
+  padding: 10px;
+  margin-right: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 13px;
+}
+
+.input-area button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #121212;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+/* Styles for the input field in edit mode */
+.message input[type="text"] {
+  color: #000000; /* Black text color */
+  background-color: #ffffff; /* White background */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 5px;
+  font-size: 13px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.message input[type="text"]::placeholder {
+  color: #888888; /* Gray placeholder text */
+}
