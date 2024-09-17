@@ -18,12 +18,16 @@ import SendIcon from '@mui/icons-material/Send';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SettingsIcon from '@mui/icons-material/Settings';
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
+import SplitscreenIcon from '@mui/icons-material/Splitscreen';
 import { parse } from "marked";
 import { v4 as uuidv4 } from "uuid";
 import { sendMessage, deleteMessage, updateMessage } from "../../services/api";
 import "./ChatWindow.css";
 import avatarImage from '../../assets/ava.png';  // Chatbot avatar
-import userAvatar from '../../assets/user-avatar.png';  // User avatar
+import userAvatar from '../../assets/user-avatar.png';  // User avatar/Jaspar  
+import elijahAvatar from '../../assets/elijah.png';  // Elijah avatar
+import lucasAvatar from '../../assets/lucas.png';  // Lucas avatar
 
 interface Message {
   id: string;
@@ -47,6 +51,7 @@ const ChatWindow: React.FC = () => {
   const [theme, setTheme] = useState("light");
   const [language, setLanguage] = useState("en");
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [context, setContext] = useState("Onboarding");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -144,17 +149,37 @@ const ChatWindow: React.FC = () => {
     setLanguage(event.target.value as string);
   };
 
+  const handleContextChange = (event: SelectChangeEvent) => {
+    const newContext = event.target.value as string;
+    setContext(newContext);
+
+    // Updateing avatar/agent based on agent context selected
+    if (newContext === "Onboarding") {
+      setMessages([{ id: uuidv4(), role: "assistant", content: "Hi, how can I help you today?" }]);
+    } else if (newContext === "Support") {
+      setMessages([{ id: uuidv4(), role: "assistant", content: "Hi, how can I assist you with support today?" }]);
+    } else if (newContext === "Marketing") {
+      setMessages([{ id: uuidv4(), role: "assistant", content: "Hello! Let's talk marketing strategies." }]);
+    }
+  };
+
   return (
     <div className={`chat-window ${theme}`}>
       <div className="chat-header">
         <div className="chat-header-left">
-          <Avatar src={avatarImage} alt="Chatbot Avatar" />
+          <Avatar src={context === "Onboarding" ? avatarImage : context === "Support" ? elijahAvatar : lucasAvatar} alt="Chatbot Avatar" />
           <div className="chatbot-info">
-            <h4>Hey👋, I'm Ava</h4>
+            <h4>Hey👋, I'm {context === "Onboarding" ? "Ava" : context === "Support" ? "Elijah" : "Lucas"}</h4>
             <p>Ask me anything or pick a place to start</p>
           </div>
         </div>
         <div className="chat-header-right">
+          <IconButton>
+            <FullscreenIcon />
+          </IconButton>
+          <IconButton>
+            <SplitscreenIcon />
+          </IconButton>
           <IconButton onClick={toggleSettings}>
             <SettingsIcon />
           </IconButton>
@@ -168,7 +193,7 @@ const ChatWindow: React.FC = () => {
           >
             <Avatar 
               alt={`${message.role === "user" ? "User" : "Assistant"} Avatar`} 
-              src={message.role === "user" ? userAvatar : avatarImage}  // Use avatarImage for assistant's messages
+              src={message.role === "user" ? userAvatar : context === "Onboarding" ? avatarImage : context === "Support" ? elijahAvatar : lucasAvatar}  //  avatarImage for assistant
               className="message-avatar" 
             />
             {message.isEditing ? (
@@ -207,26 +232,46 @@ const ChatWindow: React.FC = () => {
         <div ref={messagesEndRef} />
       </div>
       <div className="input-area">
-        <TextField
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Type a message..."
-          variant="outlined"
-          fullWidth
-          size="small"
-          onKeyPress={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              handleSend();
-              e.preventDefault();
-            }
-          }}
-        />
-        <IconButton color="primary" onClick={handleSend}>
-          <SendIcon />
-        </IconButton>
+        <div className="input-avatar-wrapper">
+          <Avatar src={userAvatar} alt="User Avatar" className="input-avatar" />
+          <TextField
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Type a message..."
+            variant="outlined"
+            fullWidth
+            size="small"
+            onKeyPress={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                handleSend();
+                e.preventDefault();
+              }
+            }}
+          />
+        </div>
+        <div className="input-row">
+          <span className="context-label">Context</span>
+          <Select
+            value={context}
+            onChange={handleContextChange}
+            className="context-select"
+            variant="outlined"
+            size="small"
+          >
+            <MenuItem value="Onboarding">Onboarding</MenuItem>
+            <MenuItem value="Support">Support</MenuItem>
+            <MenuItem value="Marketing">Marketing</MenuItem>
+          </Select>
+          <IconButton color="primary" onClick={handleSend}>
+            <SendIcon />
+          </IconButton>
+          <IconButton onClick={toggleSettings}>
+            <SettingsIcon />
+          </IconButton>
+        </div>
       </div>
       
-      {/* Settings Dialog */}
+      {/* Settings*/}
       <Dialog open={settingsOpen} onClose={toggleSettings}>
         <DialogTitle>Settings</DialogTitle>
         <DialogContent>
