@@ -4,12 +4,35 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+env/
 venv/
+ENV/
+*.egg
+*.egg-info/
+.eggs/
+*.pyd
+*.pyo
+*.pyc
+*.pyo
+*.pyd
 
 # Node.js
 node_modules/
 npm-debug.log*
+yarn-debug.log*
 yarn-error.log*
 
-
+# macOS
 .DS_Store
+
+# Logs
+logs/
+*.log
+
+# Virtual environments
+backend/venv/
+frontend/node_modules/
+
+# Environment variables
+.env
+venv/
