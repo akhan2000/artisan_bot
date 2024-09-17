@@ -1,8 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import "./ChatWindow.css";
+import { Avatar, IconButton, TextField, Button } from "@mui/material";
+import SendIcon from '@mui/icons-material/Send';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import SettingsIcon from '@mui/icons-material/Settings';
 import { parse } from "marked";
 import { v4 as uuidv4 } from "uuid";
 import { sendMessage, deleteMessage, updateMessage } from "../../services/api";
+import "./ChatWindow.css";
 
 interface Message {
   id: string;
@@ -47,7 +52,9 @@ const ChatWindow: React.FC = () => {
       try {
         const newMessage = await sendMessage(trimmedInput, "user");
         if (newMessage) {
-          setMessages((prevMessages) => prevMessages.map((msg) => (msg.id === userMessage.id ? newMessage : msg)));
+          setMessages((prevMessages) =>
+            prevMessages.map((msg) => (msg.id === userMessage.id ? newMessage : msg))
+          );
         }
       } catch (error) {
         console.error("Failed to send message:", error);
@@ -107,39 +114,60 @@ const ChatWindow: React.FC = () => {
 
   return (
     <div className="chat-window">
+      <div className="chat-header">
+        <div className="chat-header-left">
+          <Avatar alt="Chatbot Avatar" src="chatbot-avatar.png" />
+          <div className="chatbot-info">
+            <h4>Hey👋, I'm Ava</h4>
+            <p>Ask me anything or pick a place to start</p>
+          </div>
+        </div>
+        <div className="chat-header-right">
+          <IconButton>
+            <SettingsIcon />
+          </IconButton>
+        </div>
+      </div>
       <div className="messages-container">
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`${message.role}-message-container`}
+            className={`message-container ${message.role === "user" ? "user-message" : "assistant-message"}`}
           >
+            <Avatar 
+              alt={`${message.role === "user" ? "User" : "Assistant"} Avatar`} 
+              src={`${message.role}-avatar.png`} 
+              className="message-avatar" 
+            />
             {message.isEditing ? (
-              <>
-                <input
-                  type="text"
+              <div className="message-edit">
+                <TextField
+                  variant="outlined"
                   value={message.content}
-                  onChange={(e) =>
-                    handleContentChange(message.id, e.target.value)
-                  }
-                  autoFocus
+                  onChange={(e) => handleContentChange(message.id, e.target.value)}
+                  size="small"
+                  fullWidth
                 />
-                <button onClick={() => saveEdit(message.id)}>Save</button>
-              </>
+                <Button onClick={() => saveEdit(message.id)} variant="contained" color="primary">
+                  Save
+                </Button>
+              </div>
             ) : (
               <div
-                className={`message ${message.role}-message`}
+                className="message"
                 dangerouslySetInnerHTML={{
-                  __html: (parse(message.content) as string).replace(
-                    /<p>|<\/p>/g,
-                    ""
-                  ),
+                  __html: (parse(message.content) as string).replace(/<p>|<\/p>/g, ""),
                 }}
               ></div>
             )}
             {message.role === "user" && !message.isEditing && (
               <div className="message-actions">
-                <button onClick={() => handleEdit(message.id)}>Edit</button>
-                <button onClick={() => handleDelete(message.id)}>Delete</button>
+                <IconButton onClick={() => handleEdit(message.id)} size="small">
+                  <EditIcon fontSize="small" />
+                </IconButton>
+                <IconButton onClick={() => handleDelete(message.id)} size="small">
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
               </div>
             )}
           </div>
@@ -147,10 +175,13 @@ const ChatWindow: React.FC = () => {
         <div ref={messagesEndRef} />
       </div>
       <div className="input-area">
-        <input
+        <TextField
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type a message..."
+          variant="outlined"
+          fullWidth
+          size="small"
           onKeyPress={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               handleSend();
@@ -158,9 +189,9 @@ const ChatWindow: React.FC = () => {
             }
           }}
         />
-        <button className="send-button" onClick={handleSend}>
-          Send
-        </button>
+        <IconButton color="primary" onClick={handleSend}>
+          <SendIcon />
+        </IconButton>
       </div>
     </div>
   );
