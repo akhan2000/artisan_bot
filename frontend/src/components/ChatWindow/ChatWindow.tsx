@@ -1,5 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Avatar, IconButton, TextField, Button } from "@mui/material";
+import {
+  Avatar,
+  IconButton,
+  TextField,
+  Button,
+  Switch,
+  FormControlLabel,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+} from "@mui/material";
 import SendIcon from '@mui/icons-material/Send';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -8,6 +22,8 @@ import { parse } from "marked";
 import { v4 as uuidv4 } from "uuid";
 import { sendMessage, deleteMessage, updateMessage } from "../../services/api";
 import "./ChatWindow.css";
+import avatarImage from '../../assets/ava.png';  // Chatbot avatar
+import userAvatar from '../../assets/user-avatar.png';  // User avatar
 
 interface Message {
   id: string;
@@ -28,6 +44,9 @@ const ChatWindow: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>(defaultMessage);
   const [input, setInput] = useState<string>("");
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [theme, setTheme] = useState("light");
+  const [language, setLanguage] = useState("en");
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -112,18 +131,31 @@ const ChatWindow: React.FC = () => {
     }
   };
 
+  const toggleSettings = () => {
+    setSettingsOpen(!settingsOpen);
+  };
+
+  const handleThemeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTheme(event.target.checked ? "dark" : "light");
+    document.body.className = event.target.checked ? "dark-theme" : "light-theme";
+  };
+
+  const handleLanguageChange = (event: SelectChangeEvent) => {
+    setLanguage(event.target.value as string);
+  };
+
   return (
-    <div className="chat-window">
+    <div className={`chat-window ${theme}`}>
       <div className="chat-header">
         <div className="chat-header-left">
-          <Avatar alt="Chatbot Avatar" src="chatbot-avatar.png" />
+          <Avatar src={avatarImage} alt="Chatbot Avatar" />
           <div className="chatbot-info">
             <h4>Hey👋, I'm Ava</h4>
             <p>Ask me anything or pick a place to start</p>
           </div>
         </div>
         <div className="chat-header-right">
-          <IconButton>
+          <IconButton onClick={toggleSettings}>
             <SettingsIcon />
           </IconButton>
         </div>
@@ -136,7 +168,7 @@ const ChatWindow: React.FC = () => {
           >
             <Avatar 
               alt={`${message.role === "user" ? "User" : "Assistant"} Avatar`} 
-              src={`${message.role}-avatar.png`} 
+              src={message.role === "user" ? userAvatar : avatarImage}  // Use avatarImage for assistant's messages
               className="message-avatar" 
             />
             {message.isEditing ? (
@@ -193,6 +225,30 @@ const ChatWindow: React.FC = () => {
           <SendIcon />
         </IconButton>
       </div>
+      
+      {/* Settings Dialog */}
+      <Dialog open={settingsOpen} onClose={toggleSettings}>
+        <DialogTitle>Settings</DialogTitle>
+        <DialogContent>
+          <FormControlLabel
+            control={<Switch checked={theme === "dark"} onChange={handleThemeChange} />}
+            label="Dark Mode"
+          />
+          <div style={{ marginTop: 16 }}>
+            <p>Language</p>
+            <Select value={language} onChange={handleLanguageChange} fullWidth>
+              <MenuItem value="en">English</MenuItem>
+              <MenuItem value="es">Spanish</MenuItem>
+              <MenuItem value="fr">French</MenuItem>
+            </Select>
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={toggleSettings} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
