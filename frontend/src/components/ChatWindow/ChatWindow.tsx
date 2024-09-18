@@ -1,92 +1,83 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
-  Avatar,
-  IconButton,
-  TextField,
-  Button,
-  Switch,
-  FormControlLabel,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-} from "@mui/material";
+// src/components/ChatWindow/ChatWindow.tsx
+
+import React, { useState, useEffect, useRef, useContext } from "react";
+import { Avatar, IconButton, TextField, Button, Switch, FormControlLabel, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import SendIcon from '@mui/icons-material/Send';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SettingsIcon from '@mui/icons-material/Settings';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import SplitscreenIcon from '@mui/icons-material/Splitscreen';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { parse } from "marked";
 import { v4 as uuidv4 } from "uuid";
-import { sendMessage, deleteMessage, updateMessage } from "../../services/api";
+import { sendMessage, deleteMessage, updateMessage, getMessages, Message as APIMessage } from "../../services/api";
 import "./ChatWindow.css";
 import avatarImage from '../../assets/ava.png';  // Chatbot avatar
 import userAvatar from '../../assets/user-avatar.png';  // User avatar/Jaspar  
 import elijahAvatar from '../../assets/elijah.png';  // Elijah avatar
 import lucasAvatar from '../../assets/lucas.png';  // Lucas avatar
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../../context/AuthContext'; // Import AuthContext
 
-interface Message {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
+// Extend the APIMessage interface to include isEditing
+interface ChatMessage extends APIMessage {
   isEditing?: boolean;
 }
 
 const ChatWindow: React.FC = () => {
-  const defaultMessage: Message[] = [
-    {
-      id: uuidv4(),
-      role: "assistant",
-      content: "Hi, how can I help you today?",
-    },
-  ];
-
-  const [messages, setMessages] = useState<Message[]>(defaultMessage);
+  const defaultMessage: ChatMessage[] = [];
+  
+  const { logout } = useContext(AuthContext); // Access logout function
+  const [messages, setMessages] = useState<ChatMessage[]>(defaultMessage);
   const [input, setInput] = useState<string>("");
-  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [editingMessageId, setEditingMessageId] = useState<number | null>(null);
   const [theme, setTheme] = useState("light");
   const [language, setLanguage] = useState("en");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [context, setContext] = useState("Onboarding");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
+    fetchMessages();
+    scrollToBottom();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [context]);
+
+  useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  const fetchMessages = async () => {
+    try {
+      const fetchedMessages = await getMessages(0, 100); // Adjust as needed
+      setMessages(fetchedMessages.map(msg => ({ ...msg, isEditing: false })));
+    } catch (error) {
+      console.error("Failed to fetch messages:", error);
+    }
+  };
 
   const handleSend = async () => {
     const trimmedInput = input.trim();
     if (trimmedInput) {
-      const userMessage: Message = {
-        id: uuidv4(),
-        role: "user",
-        content: trimmedInput,
-      };
-      setMessages((prevMessages) => [...prevMessages, userMessage]);
-      setInput("");
-
       try {
         const newMessage = await sendMessage(trimmedInput, "user");
-        if (newMessage) {
-          setMessages((prevMessages) =>
-            prevMessages.map((msg) => (msg.id === userMessage.id ? newMessage : msg))
-          );
-        }
+        setMessages((prevMessages) => [...prevMessages, { ...newMessage, isEditing: false }]);
+        setInput("");
+
+        // Optionally, trigger assistant response here
       } catch (error) {
         console.error("Failed to send message:", error);
       }
     }
   };
 
-  const handleEdit = (id: string) => {
+  const handleEdit = (id: number) => {
     setEditingMessageId(id);
     setMessages((prevMessages) =>
       prevMessages.map((message) =>
@@ -95,7 +86,7 @@ const ChatWindow: React.FC = () => {
     );
   };
 
-  const handleContentChange = (id: string, newContent: string) => {
+  const handleContentChange = (id: number, newContent: string) => {
     setMessages((prevMessages) =>
       prevMessages.map((message) =>
         message.id === id ? { ...message, content: newContent } : message
@@ -103,14 +94,14 @@ const ChatWindow: React.FC = () => {
     );
   };
 
-  const saveEdit = async (id: string) => {
+  const saveEdit = async (id: number) => {
     const message = messages.find((msg) => msg.id === id);
     if (message) {
       try {
         if (message.content.trim() === "") {
           await handleDelete(id); // If content is empty, treat it as a delete action
         } else {
-          const updatedMessage = await updateMessage(parseInt(message.id), message.content);
+          const updatedMessage = await updateMessage(id, message.content);
           setMessages((prevMessages) =>
             prevMessages.map((msg) =>
               msg.id === id ? { ...updatedMessage, isEditing: false } : msg
@@ -124,9 +115,9 @@ const ChatWindow: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: number) => {
     try {
-      await deleteMessage(parseInt(id));
+      await deleteMessage(id);
       setMessages((prevMessages) =>
         prevMessages.filter((message) => message.id !== id)
       );
@@ -153,14 +144,13 @@ const ChatWindow: React.FC = () => {
     const newContext = event.target.value as string;
     setContext(newContext);
 
-    // Updateing avatar/agent based on agent context selected
-    if (newContext === "Onboarding") {
-      setMessages([{ id: uuidv4(), role: "assistant", content: "Hi, how can I help you today?" }]);
-    } else if (newContext === "Support") {
-      setMessages([{ id: uuidv4(), role: "assistant", content: "Hi, how can I assist you with support today?" }]);
-    } else if (newContext === "Marketing") {
-      setMessages([{ id: uuidv4(), role: "assistant", content: "Hello! Let's talk marketing strategies." }]);
-    }
+    // Optionally, clear messages or set context-specific defaults
+    // fetchMessages(); // Fetch messages based on new context if applicable
+  };
+
+  const handleLogout = () => {
+    logout(); // Use context's logout function
+    navigate('/login'); // Redirect to login page
   };
 
   return (
@@ -182,6 +172,9 @@ const ChatWindow: React.FC = () => {
           </IconButton>
           <IconButton onClick={toggleSettings}>
             <SettingsIcon />
+          </IconButton>
+          <IconButton onClick={handleLogout}>
+            <LogoutIcon />
           </IconButton>
         </div>
       </div>
@@ -271,7 +264,7 @@ const ChatWindow: React.FC = () => {
         </div>
       </div>
       
-      {/* Settings*/}
+      {/* Settings */}
       <Dialog open={settingsOpen} onClose={toggleSettings}>
         <DialogTitle>Settings</DialogTitle>
         <DialogContent>
