@@ -1,16 +1,29 @@
 // src/components/ChatWindow/ChatWindow.tsx
 
 import React, { useState, useEffect, useRef, useContext } from "react";
-import { Avatar, IconButton, TextField, Button, Switch, FormControlLabel, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import { 
+  Avatar, 
+  IconButton, 
+  TextField, 
+  Button, 
+  Switch, 
+  FormControlLabel, 
+  Dialog, 
+  DialogTitle, 
+  DialogContent, 
+  DialogActions, 
+  MenuItem, 
+  Select, 
+  SelectChangeEvent 
+} from "@mui/material"; // for clean UI icons 
 import SendIcon from '@mui/icons-material/Send';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SettingsIcon from '@mui/icons-material/Settings';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
-import SplitscreenIcon from '@mui/icons-material/Splitscreen';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { parse } from "marked";
-import { v4 as uuidv4 } from "uuid";
+// Removed SplitscreenIcon as it's not used
 import { sendMessage, deleteMessage, updateMessage, getMessages, Message as APIMessage } from "../../services/api";
 import "./ChatWindow.css";
 import avatarImage from '../../assets/ava.png';  // Chatbot avatar
@@ -18,9 +31,9 @@ import userAvatar from '../../assets/user-avatar.png';  // User avatar/Jaspar
 import elijahAvatar from '../../assets/elijah.png';  // Elijah avatar
 import lucasAvatar from '../../assets/lucas.png';  // Lucas avatar
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../context/AuthContext'; // Import AuthContext
+import { AuthContext } from '../../context/AuthContext'; // Import AuthContext (for state management)
 
-// Extend the APIMessage interface to include isEditing
+// APIMessage interface includes isEditing
 interface ChatMessage extends APIMessage {
   isEditing?: boolean;
 }
@@ -28,7 +41,7 @@ interface ChatMessage extends APIMessage {
 const ChatWindow: React.FC = () => {
   const defaultMessage: ChatMessage[] = [];
   
-  const { logout } = useContext(AuthContext); // Access logout function
+  const { logout } = useContext(AuthContext); //  logout function (linked with logout icon on top right of pane in UI)
   const [messages, setMessages] = useState<ChatMessage[]>(defaultMessage);
   const [input, setInput] = useState<string>("");
   const [editingMessageId, setEditingMessageId] = useState<number | null>(null);
@@ -46,7 +59,6 @@ const ChatWindow: React.FC = () => {
   useEffect(() => {
     fetchMessages();
     scrollToBottom();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [context]);
 
   useEffect(() => {
@@ -55,10 +67,19 @@ const ChatWindow: React.FC = () => {
 
   const fetchMessages = async () => {
     try {
-      const fetchedMessages = await getMessages(0, 100); // Adjust as needed
-      setMessages(fetchedMessages.map(msg => ({ ...msg, isEditing: false })));
+      const fetchedMessages = await getMessages(0, 100); // Can adjust as needed 
+      
+      // Filter messages based on the selected context  (logic for managing context dependent chat history being fed to LLM API)
+      const filteredMessages = fetchedMessages
+        .filter(msg => msg.context === context)
+        .map(msg => ({ ...msg, isEditing: false }));
+      
+      setMessages(filteredMessages); 
+
+      scrollToBottom();
     } catch (error) {
       console.error("Failed to fetch messages:", error);
+
     }
   };
 
@@ -66,13 +87,20 @@ const ChatWindow: React.FC = () => {
     const trimmedInput = input.trim();
     if (trimmedInput) {
       try {
-        const newMessage = await sendMessage(trimmedInput, "user");
+        // Include the current context when sending the message (including context as a param for seperation of functionality of chat agents)
+        const newMessage = await sendMessage(trimmedInput, "user", context);
+        
+        // Update the messages state with the new user message
         setMessages((prevMessages) => [...prevMessages, { ...newMessage, isEditing: false }]);
+        
+        // Clear the input field
         setInput("");
-
-        // Optionally, trigger assistant response here
+        
+        // Fetch messages again to retrieve the assistant's response
+        await fetchMessages();
       } catch (error) {
         console.error("Failed to send message:", error);
+        // for additional error handling
       }
     }
   };
@@ -144,13 +172,22 @@ const ChatWindow: React.FC = () => {
     const newContext = event.target.value as string;
     setContext(newContext);
 
-    // Optionally, clear messages or set context-specific defaults
-    // fetchMessages(); // Fetch messages based on new context if applicable
+    fetchMessages();
   };
 
   const handleLogout = () => {
-    logout(); // Use context's logout function
+    logout(); 
     navigate('/login'); // Redirect to login page
+  };
+
+  const handleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
   };
 
   return (
@@ -164,12 +201,10 @@ const ChatWindow: React.FC = () => {
           </div>
         </div>
         <div className="chat-header-right">
-          <IconButton>
+          <IconButton onClick={handleFullscreen}>
             <FullscreenIcon />
           </IconButton>
-          <IconButton>
-            <SplitscreenIcon />
-          </IconButton>
+          {/* Removed SplitscreenIcon as it's not used */}
           <IconButton onClick={toggleSettings}>
             <SettingsIcon />
           </IconButton>
@@ -186,7 +221,7 @@ const ChatWindow: React.FC = () => {
           >
             <Avatar 
               alt={`${message.role === "user" ? "User" : "Assistant"} Avatar`} 
-              src={message.role === "user" ? userAvatar : context === "Onboarding" ? avatarImage : context === "Support" ? elijahAvatar : lucasAvatar}  //  avatarImage for assistant
+              src={message.role === "user" ? userAvatar : context === "Onboarding" ? avatarImage : context === "Support" ? elijahAvatar : lucasAvatar}  // Assistant avatar based on context
               className="message-avatar" 
             />
             {message.isEditing ? (
@@ -258,13 +293,14 @@ const ChatWindow: React.FC = () => {
           <IconButton color="primary" onClick={handleSend}>
             <SendIcon />
           </IconButton>
-          <IconButton onClick={toggleSettings}>
+          {/* Removed SettingsIcon from the bottom input row for simplicity */}
+          {/* <IconButton onClick={toggleSettings}>
             <SettingsIcon />
-          </IconButton>
+          </IconButton> */}
         </div>
       </div>
       
-      {/* Settings */}
+      {/* Settings Dialog */}
       <Dialog open={settingsOpen} onClose={toggleSettings}>
         <DialogTitle>Settings</DialogTitle>
         <DialogContent>

@@ -29,7 +29,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('token');
     setIsAuthenticated(false);
-    setTheme('light'); // Reset to light mode on logout
+    setTheme('light'); // Reset to light mode on logout (can have a seperate file for theme context for seperation of features, but currently keeping as is for speed purposes)
     localStorage.setItem('theme', 'light');
     document.body.className = 'light-theme';
   };
@@ -38,7 +38,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     document.body.className = theme === 'dark' ? 'dark-theme' : 'light-theme';
   }, [theme]);
 
-  // Optionally, provide a method to toggle theme
+  // provide a method to toggle theme
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);

@@ -17,8 +17,8 @@ const Login: React.FC = () => {
     try {
       const response = await loginApi(username, password);
       const { access_token } = response;
-      login(access_token); // Update context with the token
-      navigate('/'); // Redirect to chat window after successful login
+      login(access_token); // Update context with  token
+      navigate('/'); // Redirect bot after login
     } catch (error: any) {
       console.error('Error during login:', error);
       setError(error.response?.data?.detail || 'Login failed');

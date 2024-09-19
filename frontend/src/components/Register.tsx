@@ -20,7 +20,7 @@ const Register: React.FC = () => {
     try {
       await register(username, password, email, firstName, lastName);
       // Registration successful, redirect to login page
-      navigate('/login'); // Adjust the path as needed
+      navigate('/login'); // Could auto log in and send straight to bot, or prompt user to log in again as is set up currently
     } catch (error: any) {
       console.error('Error during registration:', error);
       setError(error.response?.data?.detail || 'Registration failed');
