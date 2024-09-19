@@ -9,7 +9,7 @@
     overflow: hidden;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
-  
+
 .chat-header {
     display: flex;
     justify-content: space-between;
@@ -19,31 +19,31 @@
     background-color: #f5f5f5;
     transition: background-color 0.3s ease;
 }
-  
+
 .chat-header-left {
     display: flex;
     align-items: center;
 }
-  
+
 .chatbot-info h4 {
     margin: 0;
     font-size: 1rem;
     color: #333;
     transition: color 0.3s ease;
 }
-  
+
 .chatbot-info p {
     margin: 0;
     font-size: 0.875rem;
     color: #555;
     transition: color 0.3s ease;
 }
-  
+
 .chat-header-right {
     display: flex;
     gap: 8px;
 }
-  
+
 .messages-container {
     flex-grow: 1;
     padding: 16px;
@@ -51,43 +51,67 @@
     background-color: #f9f9f9;
     transition: background-color 0.3s ease;
 }
-  
+
+/* Align user messages to the right */
+.message-container.user-message {
+    justify-content: flex-end;
+}
+
+.message-container.user-message .message-avatar {
+    order: 2;
+    margin-left: 8px;
+    margin-right: 0;
+}
+
+.message-container.user-message .message {
+    order: 1;
+    background-color: #7b61ff;
+    color: white;
+    border-radius: 16px 16px 0 16px;
+}
+
+/* Align assistant messages to the left */
+.message-container.assistant-message {
+    justify-content: flex-start;
+}
+
+.message-container.assistant-message .message-avatar {
+    order: 1;
+    margin-right: 8px;
+    margin-left: 0;
+}
+
+.message-container.assistant-message .message {
+    order: 2;
+    background-color: #e9ecef;
+    color: #333;
+    border-radius: 16px 16px 16px 0;
+}
+
 .message-container {
     display: flex;
     align-items: flex-start;
     margin-bottom: 16px;
 }
-  
-.message-container.user-message .message {
-    background-color: #7b61ff;
-    color: white;
-    border-radius: 16px 16px 0 16px;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-  
-.message-container.assistant-message .message {
-    background-color: #e9ecef;
-    color: #333;
-    border-radius: 16px 16px 16px 0;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-  
+
 .message {
+    max-width: 60%;
     padding: 12px;
-    max-width: 70%;
     line-height: 1.4;
 }
-  
+
 .message-avatar {
-    margin-right: 8px;
+    width: 40px; /* Optional: Adjust size as needed */
+    height: 40px;
+    border-radius: 50%;
 }
-  
+
 .message-edit {
     display: flex;
     align-items: center;
     gap: 8px;
 }
-  
+
 .input-area {
     display: flex;
     flex-direction: column;
@@ -96,23 +120,23 @@
     transition: background-color 0.3s ease;
     padding: 8px 16px;
 }
-  
+
 .input-avatar-wrapper {
     display: flex;
     align-items: center;
     margin-bottom: 8px;
 }
-  
+
 .input-avatar {
     margin-right: 8px;
 }
-  
+
 .input-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
-  
+
 input[type="text"] {
     flex-grow: 1;
     border-radius: 20px;
@@ -121,105 +145,163 @@ input[type="text"] {
     background-color: #fff;
     transition: background-color 0.3s ease, border-color 0.3s ease;
 }
-  
+
 .context-select {
     flex: 1;
     margin-left: 8px;
     max-width: 150px;
 }
-  
+
 .context-label {
     margin-right: 8px;
     font-size: 0.875rem;
     color: #333;
 }
-  
+
 .message-actions {
     margin-left: auto;
     display: flex;
     gap: 4px;
 }
-  
+
 /* Dark Mode Styles */
 .dark-theme .chat-window {
     background-color: #333;
     color: #eee;
 }
-  
+
 .dark-theme .chat-header {
     background-color: #444;
 }
-  
+
 .dark-theme .chatbot-info h4,
 .dark-theme .chatbot-info p {
     color: #eee;
 }
-  
+
 .dark-theme .messages-container {
     background-color: #2a2a2a;
 }
-  
+
+/* User messages in dark mode */
 .dark-theme .message-container.user-message .message {
     background-color: #5a4fcc;
 }
-  
+
+/* Assistant messages in dark mode */
 .dark-theme .message-container.assistant-message .message {
     background-color: #444;
     color: #ccc;
 }
-  
+
+.dark-theme .message-container.assistant-message .message {
+    color: #ccc;
+}
+
+.dark-theme .message-container.assistant-message .message {
+    background-color: #444;
+}
+
+/* Input field in dark mode */
 .dark-theme input[type="text"] {
     background-color: #555;
     border-color: #777;
     color: #eee;
 }
-  
+
+.dark-theme input[type="text"]::placeholder {
+    color: #ccc;
+}
+
 .dark-theme .input-area {
     background-color: #444;
 }
-  
+
 .dark-theme .message-avatar {
     filter: brightness(0.8);
 }
-  
+
+/* Context Select in dark mode */
+.dark-theme .context-select {
+    background-color: #555;
+    color: #eee;
+    border: 1px solid #777;
+}
+
+.dark-theme .context-select .MuiSelect-icon {
+    color: #eee;
+}
+
+.dark-theme .context-select:hover {
+    background-color: #666;
+}
+
+.dark-theme .context-select:focus {
+    background-color: #666;
+    border-color: #999;
+}
+
+/* Context Label in dark mode */
+.dark-theme .context-label {
+    color: #eee;
+}
+
+/* Message Actions (Edit/Delete Buttons) in dark mode */
+.dark-theme .message-actions .MuiIconButton-root {
+    color: #fff;
+}
+
+.dark-theme .message-actions .MuiIconButton-root:hover {
+    color: #ddd;
+}
+
+/* Chat Header Right Icon Buttons in dark mode */
+.dark-theme .chat-header-right .MuiIconButton-root {
+    color: #fff;
+}
+
+.dark-theme .chat-header-right .MuiIconButton-root:hover {
+    color: #ddd;
+}
+
 /* Light Mode Styles */
 .light-theme .chat-window {
     background-color: #fff;
     color: #333;
 }
-  
+
 .light-theme .chat-header {
     background-color: #f5f5f5;
 }
-  
+
 .light-theme .chatbot-info h4,
 .light-theme .chatbot-info p {
     color: #333;
 }
-  
+
 .light-theme .messages-container {
     background-color: #f9f9f9;
 }
-  
+
 .light-theme .message-container.user-message .message {
     background-color: #7b61ff;
 }
-  
+
 .light-theme .message-container.assistant-message .message {
     background-color: #e9ecef;
     color: #333;
 }
-  
+
 .light-theme input[type="text"] {
     background-color: #fff;
     border-color: #e0e0e0;
     color: #333;
 }
-  
+
 .light-theme .input-area {
     background-color: #f5f5f5;
 }
-  
+
 .light-theme .message-avatar {
     filter: none;
 }
