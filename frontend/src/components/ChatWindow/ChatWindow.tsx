@@ -192,27 +192,27 @@ const ChatWindow: React.FC = () => {
 
   return (
     <div className={`chat-window ${theme}`}>
-  <div className="chat-header">
-    <div className="chat-header-left">
-      <Avatar src={context === "Onboarding" ? avatarImage : context === "Support" ? elijahAvatar : lucasAvatar} alt="Chatbot Avatar" />
-      <div className="chatbot-info">
-        <h4>Hey👋, I'm {context === "Onboarding" ? "Ava" : context === "Support" ? "Elijah" : "Lucas"}</h4>
-        <p>Ask me anything or pick a place to start</p>
+      <div className="chat-header">
+        <div className="chat-header-left">
+          <Avatar src={context === "Onboarding" ? avatarImage : context === "Support" ? elijahAvatar : lucasAvatar} alt="Chatbot Avatar" />
+          <div className="chatbot-info">
+            <h4>Hey👋, I'm {context === "Onboarding" ? "Ava" : context === "Support" ? "Elijah" : "Lucas"}</h4>
+            <p>Ask me anything or pick a place to start</p>
+          </div>
+        </div>
+        <div className="chat-header-right">
+          <IconButton onClick={handleFullscreen}>
+            <FullscreenIcon />
+          </IconButton>
+          <IconButton onClick={toggleSettings}>
+            <SettingsIcon />
+          </IconButton>
+          <IconButton onClick={handleLogout}>
+            <LogoutIcon />
+          </IconButton>
+        </div>
       </div>
-    </div>
-    <div className="chat-header-right">
-      <IconButton onClick={handleFullscreen}>
-        <FullscreenIcon />
-      </IconButton>
-      <IconButton onClick={toggleSettings}>
-        <SettingsIcon />
-      </IconButton>
-      <IconButton onClick={handleLogout}>
-        <LogoutIcon />
-      </IconButton>
-    </div>
-  </div>
-</div>
+  
       <div className="messages-container">
         {messages.map((message) => (
           <div
@@ -259,6 +259,7 @@ const ChatWindow: React.FC = () => {
         ))}
         <div ref={messagesEndRef} />
       </div>
+      
       <div className="input-area">
         <div className="input-avatar-wrapper">
           <Avatar src={userAvatar} alt="User Avatar" className="input-avatar" />
@@ -293,10 +294,6 @@ const ChatWindow: React.FC = () => {
           <IconButton color="primary" onClick={handleSend}>
             <SendIcon />
           </IconButton>
-          {/* Removed SettingsIcon from the bottom input row for simplicity */}
-          {/* <IconButton onClick={toggleSettings}>
-            <SettingsIcon />
-          </IconButton> */}
         </div>
       </div>
       
@@ -325,6 +322,7 @@ const ChatWindow: React.FC = () => {
       </Dialog>
     </div>
   );
+  
 };
 
 export default ChatWindow;
