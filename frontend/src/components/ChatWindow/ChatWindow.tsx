@@ -193,21 +193,18 @@ const ChatWindow: React.FC = () => {
   return (
     <div className={`chat-window ${theme}`}>
       <div className="chat-header">
+        <IconButton onClick={handleFullscreen} className="fullscreen-icon">
+          <FullscreenIcon />
+        </IconButton>
+        <IconButton onClick={handleLogout} className="logout-icon">
+          <LogoutIcon />
+        </IconButton>
         <div className="chat-header-left">
           <Avatar src={context === "Onboarding" ? avatarImage : context === "Support" ? elijahAvatar : lucasAvatar} alt="Chatbot Avatar" />
           <div className="chatbot-info">
             <h4>Hey👋, I'm {context === "Onboarding" ? "Ava" : context === "Support" ? "Elijah" : "Lucas"}</h4>
             <p>Ask me anything or pick a place to start</p>
           </div>
-        </div>
-        <div className="chat-header-right">
-          <IconButton onClick={handleFullscreen}>
-            <FullscreenIcon />
-          </IconButton>
-          
-          <IconButton onClick={handleLogout}>
-            <LogoutIcon />
-          </IconButton>
         </div>
       </div>
   
