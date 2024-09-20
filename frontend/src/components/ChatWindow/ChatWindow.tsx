@@ -204,9 +204,7 @@ const ChatWindow: React.FC = () => {
           <IconButton onClick={handleFullscreen}>
             <FullscreenIcon />
           </IconButton>
-          <IconButton onClick={toggleSettings}>
-            <SettingsIcon />
-          </IconButton>
+          
           <IconButton onClick={handleLogout}>
             <LogoutIcon />
           </IconButton>
@@ -291,6 +289,10 @@ const ChatWindow: React.FC = () => {
             <MenuItem value="Support">Support</MenuItem>
             <MenuItem value="Marketing">Marketing</MenuItem>
           </Select>
+
+          <IconButton onClick={toggleSettings}>
+            <SettingsIcon />
+          </IconButton>
           <IconButton color="primary" onClick={handleSend}>
             <SendIcon />
           </IconButton>
