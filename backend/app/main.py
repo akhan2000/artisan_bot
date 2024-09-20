@@ -1,25 +1,35 @@
+# app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import messages
 from .database import engine, Base
+from .routers import messages
+from .auth import router as auth_router
 
-# db tables 
+# Initialize the database tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-# CORS for network communication
+# Define allowed origins
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  
+    allow_origins=origins,  # or ["*"] to allow all origins
     allow_credentials=True,
-    allow_methods=["*"],  
-    allow_headers=["*"],  
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# router for messages
+app.include_router(auth_router)
 app.include_router(messages.router)
+
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to the chat API"}
+    return {"message": "Welcome to the Chatbot API"}

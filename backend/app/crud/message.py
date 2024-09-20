@@ -1,20 +1,19 @@
-from typing import Optional
-from openai import OpenAI
-import os 
 from sqlalchemy.orm import Session
+from openai import OpenAI
+import os
 from .. import models, schemas
+from typing import Optional
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
 
-# Initialize OpenAI API key
+# Load key from .env
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
     raise ValueError("OpenAI API key not found. Please set the OPENAI_API_KEY environment variable.")
 
 client = OpenAI(api_key=OPENAI_API_KEY)
-import os
 
 def create_message(db: Session, message: schemas.MessageCreate, user_id: int):
     # Create and store the user message
@@ -23,11 +22,11 @@ def create_message(db: Session, message: schemas.MessageCreate, user_id: int):
     db.commit()
     db.refresh(db_message)
 
-    # Generate assistant response based on context
-    context = db_message.context  # Ensure Message model includes 'context'
-    assistant_response = generate_response(db_message.content, context)
+    # Generate assistant response based on context and user history
+    context = db_message.context
+    assistant_response = generate_response(db_message.content, context, db, user_id)
 
-    # Create and store the assistant message
+    # Create and store the assistant's message
     db_assistant_message = models.Message(
         role="assistant",
         content=assistant_response,
@@ -40,36 +39,69 @@ def create_message(db: Session, message: schemas.MessageCreate, user_id: int):
 
     return db_message
 
-def generate_response(user_input: str, context: str) -> str:
+def generate_response(user_input: str, context: str, db: Session, user_id: int, history_limit: int = 5) -> str:
     """
-    Generate a response based on the user input and context using OpenAI's ChatCompletion.
+    Generate a response based on the user input, context, and recent user history using OpenAI's ChatCompletion.
     """
     try:
-        # Define system prompt based on context
+        # Fetch recent chat history specific to the context (e.g., Onboarding, Support, Marketing)
+        recent_messages = get_recent_messages_by_context(db, user_id, context=context, limit=history_limit)
+        user_history = " ".join([msg.content for msg in recent_messages])
+
+        # Define system prompts based on context and user history
         system_prompts = {
-            "Onboarding": "You are Ava, an AI onboarding expert specialized in B2B sales. Welcome the user to Artisan's platform, guide them through the setup, highlight the key features of lead discovery and personalized outreach, and ensure they understand how Ava can automate their outbound sales process",
-            "Support": "You are Elijah, an AI support specialist trained in troubleshooting issues related to B2B data integration, email deliverability optimization, and AI-powered sales workflows. Offer precise solutions for technical problems users may encounter while using the Artisan platform and provide clear steps to resolve them.",
-            "Marketing": "You are Lucas, an AI marketing strategist at Artisan. Provide expert advice on our outbound sales solutions, explain the benefits of AI-powered email sequences and lead research tools, and share current promotions or case studies that showcase our impact on improving B2B sales performance."
+            "Onboarding": (
+                f"You are Ava, an AI BDR specializing in B2B sales automation. Previous history: {user_history}. "
+                "Welcome the user, guide them through the platform setup, and highlight how to automate lead discovery and email personalization."
+            ),
+            "Support": (
+                f"You are Elijah, an AI support expert. Previous history: {user_history}. "
+                "Assist the user with troubleshooting issues related to AI-powered sales workflows, email deliverability, or data integration."
+            ),
+            "Marketing": (
+                f"You are Lucas, an AI marketing strategist. Previous history: {user_history}. "
+                "Provide insights into Artisan’s sales solutions, including AI-driven email sequences, lead research, and current promotions."
+            )
         }
 
-        system_prompt = system_prompts.get(context, "You are an assistant. How can I help you today?")
+        # Select the system prompt based on context
+        system_prompt = system_prompts.get(context, "You are an assistant. How can I assist you today?")
 
-        response = client.chat.completions.create(model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_input}
-        ],
-        max_tokens=150,
-        temperature=0.7)
+        # Make the API call to OpenAI with recent history and current input
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_input}
+            ],
+            max_tokens=200,
+            temperature=0.7 if context == "Marketing" else 0.5
+        )
+
         return response.choices[0].message.content.strip()
+
     except Exception as e:
         print(f"Error generating response from OpenAI: {e}")
-        # Fallback to predefined response if OpenAI fails
+        # Fallback response
         return fallback_response(user_input, context)
+
+# Updated helper function to fetch recent messages for the specific context
+def get_recent_messages_by_context(db: Session, user_id: int, context: str, limit: int = 5) -> list[models.Message]:
+    """
+    Fetch the most recent messages from the database for a given user and context.
+    """
+    return db.query(models.Message).filter(models.Message.user_id == user_id, models.Message.context == context).order_by(models.Message.timestamp.desc()).limit(limit).all()
+
+# Existing helper function for getting messages without context filtering
+def get_messages(db: Session, user_id: int, skip: int = 0, limit: int = 10) -> list[models.Message]:
+    """
+    Fetch a list of messages for a user without filtering by context.
+    """
+    return db.query(models.Message).filter(models.Message.user_id == user_id).order_by(models.Message.timestamp.asc()).offset(skip).limit(limit).all()
 
 def fallback_response(user_input: str, context: str) -> str:
     """
-    Provide a simple, predefined response based on context and keywords.
+    Provide a simple, predefined fallback response.
     """
     user_input_lower = user_input.lower()
     if context == "Onboarding":
@@ -86,12 +118,6 @@ def fallback_response(user_input: str, context: str) -> str:
         return "Check out our latest features and promotions!"
     else:
         return "How can I assist you today?"
-
-def get_message(db: Session, message_id: int, user_id: int) -> Optional[models.Message]:
-    return db.query(models.Message).filter(models.Message.id == message_id, models.Message.user_id == user_id).first()
-
-def get_messages(db: Session, user_id: int, skip: int = 0, limit: int = 10) -> list[models.Message]:
-    return db.query(models.Message).filter(models.Message.user_id == user_id).order_by(models.Message.timestamp.asc()).offset(skip).limit(limit).all()
 
 def delete_message(db: Session, message_id: int, user_id: int) -> Optional[models.Message]:
     message = db.query(models.Message).filter(models.Message.id == message_id, models.Message.user_id == user_id).first()
