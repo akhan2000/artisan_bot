@@ -56,6 +56,20 @@ export async function sendMessage(content: string, role: string = "user", contex
     }
 }
 
+export const clickAction = async (actionType: string, context: string) => {
+    const response = await fetch('/api/click_action', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ actionType, context }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to handle click action');
+    }
+    return response.json();
+  };
+
 /**
  * Retrieves a list of messages from the backend API with pagination support.
  *
@@ -178,6 +192,7 @@ export async function register(username: string, password: string, email: string
         throw error; // Propagate error to be handled by the caller
     }
 }
+
 
 /**
  * Logs out the current user by removing the authentication token from localStorage.

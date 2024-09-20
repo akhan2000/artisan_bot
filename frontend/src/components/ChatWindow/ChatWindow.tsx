@@ -24,7 +24,7 @@ import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { parse } from "marked";
 // Removed SplitscreenIcon as it's not used
-import { sendMessage, deleteMessage, updateMessage, getMessages, Message as APIMessage } from "../../services/api";
+import { sendMessage, deleteMessage, updateMessage, getMessages, clickAction, Message as APIMessage } from "../../services/api";
 import "./ChatWindow.css";
 import avatarImage from '../../assets/ava.png';  // Chatbot avatar
 import userAvatar from '../../assets/user-avatar.png';  // User avatar/Jaspar  
@@ -114,14 +114,26 @@ const ChatWindow: React.FC = () => {
     );
   };
 
-  const handleAction = async (actionType: string) => {
-    try {
-      const response = await sendMessage("click_action", actionType, context);
-      // Display response or ask follow-up questions based on the action
-    } catch (error) {
-      console.error("Error handling action:", error);
-    }
-  };
+  // ... existing code ...
+const handleAction = async (actionType: string) => {
+  try {
+    const response = await clickAction(actionType, context);
+    // Update the messages state with the new assistant message
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { 
+        ...response, // Assuming response contains the complete ChatMessage object
+        isEditing: false 
+      }
+    ]);
+    scrollToBottom();
+  } catch (error) {
+    console.error("Error handling action:", error);
+  }
+};
+// ... existing code ...
+  
+
 
   const handleContentChange = (id: number, newContent: string) => {
     setMessages((prevMessages) =>

@@ -43,3 +43,9 @@ def update_message(message_id: int, update_data: MessageUpdate, db: Session = De
     if not updated_message:
         raise HTTPException(status_code=404, detail="Message not found or not authorized")
     return updated_message
+
+
+@router.post("/click_action")
+def click_action(action_type: str, context: str, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
+    response = crud.handle_click_action(db, current_user, action_type, context)
+    return {"response": response}
