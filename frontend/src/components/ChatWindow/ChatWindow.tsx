@@ -114,7 +114,14 @@ const ChatWindow: React.FC = () => {
     );
   };
 
-  
+  const handleAction = async (actionType: string) => {
+    try {
+      const response = await sendMessage("click_action", actionType, context);
+      // Display response or ask follow-up questions based on the action
+    } catch (error) {
+      console.error("Error handling action:", error);
+    }
+  };
 
   const handleContentChange = (id: number, newContent: string) => {
     setMessages((prevMessages) =>
@@ -209,9 +216,9 @@ const ChatWindow: React.FC = () => {
           </div>
         </div>
       </div>
-  
+
       <div className="messages-container">
-        {messages.map((message) => (
+        {messages.map((message, index) => (
           <div
             key={message.id}
             className={`message-container ${message.role === "user" ? "user-message" : "assistant-message"}`}
@@ -252,11 +259,18 @@ const ChatWindow: React.FC = () => {
                 </IconButton>
               </div>
             )}
+            {message.role === "assistant" && index === messages.findIndex(msg => msg.role === "assistant") && (
+              <div className="assistant-actions">
+                <Button onClick={() => handleAction('create_lead')} size="small">Create Lead</Button>
+                <Button onClick={() => handleAction('schedule_follow_up')} size="small">Schedule Follow-Up</Button>
+                <Button onClick={() => handleAction('generate_email_template')} size="small">Generate Email Template</Button>
+              </div>
+            )}
           </div>
         ))}
         <div ref={messagesEndRef} />
       </div>
-      
+
       <div className="input-area">
         <div className="input-avatar-wrapper">
           <Avatar src={userAvatar} alt="User Avatar" className="input-avatar" />
@@ -288,22 +302,14 @@ const ChatWindow: React.FC = () => {
             <MenuItem value="Support">Support</MenuItem>
             <MenuItem value="Marketing">Marketing</MenuItem>
           </Select>
-          <IconButton onClick={() => handleAction('create_lead')}>Create Lead</IconButton>
-          <IconButton onClick={() => handleAction('schedule_follow_up')}>Schedule Follow-Up</IconButton>
-          <IconButton onClick={() => handleAction('generate_email_template')}>Generate Email Template</IconButton>
           <IconButton color="primary" onClick={handleSend}><SendIcon /></IconButton>
         </div>
       </div>
 
-          <IconButton onClick={toggleSettings}>
-            <SettingsIcon />
-          </IconButton>
-          <IconButton color="primary" onClick={handleSend}>
-            <SendIcon />
-          </IconButton>
-        </div>
-      </div>
-      
+      <IconButton onClick={toggleSettings}>
+        <SettingsIcon />
+      </IconButton>
+
       {/* Settings Dialog */}
       <Dialog open={settingsOpen} onClose={toggleSettings}>
         <DialogTitle>Settings</DialogTitle>
@@ -329,7 +335,6 @@ const ChatWindow: React.FC = () => {
       </Dialog>
     </div>
   );
-  
 };
 
 export default ChatWindow;
