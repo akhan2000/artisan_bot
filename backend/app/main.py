@@ -15,7 +15,8 @@ origins = [
     "http://localhost",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://artisan-2bssz8594-asfandyar-khans-projects.vercel.app/"
+    "https://artisan-2bssz8594-asfandyar-khans-projects.vercel.app",  # Vercel Frontend URL
+    "https://artisanbot-production.up.railway.app"  # Railway Backend URL
 ]
 
 # Add CORS middleware
