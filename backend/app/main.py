@@ -12,8 +12,9 @@ app = FastAPI()
 
 # Define allowed origins
 origins = [
-    "https://artisan-bot-five.vercel.app",  # Add your Vercel frontend URL here
-    "https://artisanbot-production.up.railway.app"  # Your backend URL
+    "https://artisan-bot-five.vercel.app",  # Vercel frontend URL
+    "https://artisan-n1w451egq-asfandyar-khans-projects.vercel.app",  # Add this Vercel frontend URL
+    "https://artisanbot-production.up.railway.app"  # Backend URL
 ]
 
 # Add CORS middleware
