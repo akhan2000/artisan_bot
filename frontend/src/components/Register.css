@@ -53,19 +53,15 @@
   background-position: center;
 }
 
-
-/* Fixing the input field styling to ensure consistency in borders */
-.MuiOutlinedInput-root {
-  border-radius: 22px; /* Ensure consistent rounding for all inputs */
+/* Remove border-radius to make input fields fully rectangular */
+.MuiOutlinedInput-root,
+.MuiOutlinedInput-notchedOutline,
+.MuiInputBase-input,
+.MuiInputBase-root,
+.MuiInputAdornment-root {
+  border-radius: 0 !important;
 }
 
-.MuiInputBase-input {
-  border-radius: inherit; 
-  padding: 15px; 
-  background-color: inherit; 
-}
-
-
-.MuiOutlinedInput-notchedOutline {
-  border-radius: inherit; 
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-radius: 0 !important;
 }

@@ -1,8 +1,10 @@
+/* Chatbox Container */
 .chat-window {
-    width: 400px;
-    max-height: 600px;
+    width: 600px; /* Increased from 400px */
+    height: 800px; /* Added fixed height */
+    max-height: 80vh; /* Adjusted max-height for responsiveness */
     background-color: #fff;
-    border-radius: 16px;
+    border-radius: 16px; /* Optional: Keep or set to 0 for fully rectangular */
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
@@ -14,6 +16,17 @@
     transform: translate(-50%, -50%);
 }
 
+/* Alternatively, using responsive units */
+/*
+.chat-window {
+    width: 50vw; 
+    height: 70vh; 
+    max-height: 80vh;
+    ... other styles
+}
+*/
+
+/* Chat Header */
 .chat-header {
     display: flex;
     flex-direction: column; /* Stack elements vertically */
@@ -24,18 +37,20 @@
     background-color: #f5f5f5;
     transition: background-color 0.3s ease;
     text-align: center; /* Center the text */
+    flex: 0 0 auto; /* Prevents the header from stretching */
 }
 
-.chat-header .fullscreen-icon {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-}
-
-
+.chat-header .fullscreen-icon,
 .chat-header .logout-icon {
     position: absolute;
     top: 8px;
+}
+
+.chat-header .fullscreen-icon {
+    left: 8px;
+}
+
+.chat-header .logout-icon {
     right: 8px;
 }
 
@@ -60,16 +75,16 @@
     transition: color 0.3s ease;
 }
 
-
+/* Messages Container */
 .messages-container {
-    flex-grow: 1;
+    flex-grow: 1; /* Allows messages to take up remaining space */
     padding: 16px;
     overflow-y: auto;
     background-color: #f9f9f9;
     transition: background-color 0.3s ease;
 }
 
-/* Align user messages to the right */
+/* User Messages */
 .message-container.user-message {
     justify-content: flex-end;
 }
@@ -84,10 +99,10 @@
     order: 1;
     background-color: #7b61ff;
     color: white;
-    border-radius: 16px 16px 0 16px;
+    border-radius: 0; /* Removed rounding */
 }
 
-/* Align assistant messages to the left */
+/* Assistant Messages */
 .message-container.assistant-message {
     justify-content: flex-start;
 }
@@ -102,9 +117,10 @@
     order: 2;
     background-color: #e9ecef;
     color: #333;
-    border-radius: 16px 16px 16px 0;
+    border-radius: 0; /* Removed rounding */
 }
 
+/* General Message Container */
 .message-container {
     display: flex;
     align-items: flex-start;
@@ -115,6 +131,7 @@
     max-width: 60%;
     padding: 12px;
     line-height: 1.4;
+    border-radius: 0; /* Ensures no rounding */
 }
 
 .message-avatar {
@@ -129,7 +146,9 @@
     gap: 8px;
 }
 
+/* Input Area */
 .input-area {
+    flex: 0 0 auto; /* Keeps the input area at the bottom */
     display: flex;
     flex-direction: column;
     border-top: 1px solid #e0e0e0;
@@ -156,7 +175,7 @@
 
 input[type="text"] {
     flex-grow: 1;
-    border-radius: 20px;
+    border-radius: 0; /* Removed rounding */
     padding: 12px;
     border: 1px solid #e0e0e0;
     background-color: #fff;
@@ -167,6 +186,7 @@ input[type="text"] {
     flex: 1;
     margin-left: 8px;
     max-width: 150px;
+    border-radius: 0; /* Removed rounding */
 }
 
 .context-label {
@@ -179,6 +199,23 @@ input[type="text"] {
     margin-left: auto;
     display: flex;
     gap: 4px;
+}
+
+/* General Reset for Inputs and Buttons */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+.select-input, /* Example class for select elements */
+.button, /* Example class for buttons */
+.MuiOutlinedInput-root, /* MUI Outlined Input */
+.MuiInputBase-input, /* MUI Input Base */
+.MuiOutlinedInput-notchedOutline, /* MUI Notched Outline */
+.register-button, /* Your Register Button */
+.chat-header .MuiIconButton-root, /* Icon Buttons in Chat Header */
+.message-actions .MuiIconButton-root /* Icon Buttons in Message Actions */
+{
+    border-radius: 0 !important; /* Removes all border-radius */
 }
 
 /* Dark Mode Styles */
@@ -200,26 +237,15 @@ input[type="text"] {
     background-color: #2a2a2a;
 }
 
-/* User messages in dark mode */
 .dark-theme .message-container.user-message .message {
     background-color: #5a4fcc;
 }
 
-/* Assistant messages in dark mode */
 .dark-theme .message-container.assistant-message .message {
     background-color: #444;
     color: #ccc;
 }
 
-.dark-theme .message-container.assistant-message .message {
-    color: #ccc;
-}
-
-.dark-theme .message-container.assistant-message .message {
-    background-color: #444;
-}
-
-/* Input field in dark mode */
 .dark-theme input[type="text"] {
     background-color: #555;
     border-color: #777;
@@ -238,7 +264,6 @@ input[type="text"] {
     filter: brightness(0.8);
 }
 
-/* Context Select in dark mode */
 .dark-theme .context-select {
     background-color: #555;
     color: #eee;
@@ -258,12 +283,10 @@ input[type="text"] {
     border-color: #999;
 }
 
-/* Context Label in dark mode */
 .dark-theme .context-label {
     color: #eee;
 }
 
-/* Message Actions (Edit/Delete Buttons) in dark mode */
 .dark-theme .message-actions .MuiIconButton-root {
     color: #fff;
 }
@@ -272,7 +295,6 @@ input[type="text"] {
     color: #ddd;
 }
 
-/* Chat Header Right Icon Buttons in dark mode */
 .dark-theme .chat-header-right .MuiIconButton-root {
     color: #fff;
 }
