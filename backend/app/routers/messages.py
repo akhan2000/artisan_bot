@@ -1,12 +1,15 @@
 # backend/app/routers/messages.py
 
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from ..crud import message as crud
-from ..schemas.message import Message, MessageCreate, MessageUpdate
+from ..schemas.message import Message, MessageCreate, MessageUpdate #ClickActionRequest
 from ..database import get_db
 from ..auth import get_current_user
 from ..schemas.user import UserRead
+
+
 
 router = APIRouter(
     prefix="/messages",
@@ -14,6 +17,7 @@ router = APIRouter(
     dependencies=[Depends(get_current_user)],
     responses={404: {"description": "Not found"}},
 )
+
 
 @router.post("/", response_model=Message)
 def create_message(message: MessageCreate, db: Session = Depends(get_db), current_user: UserRead = Depends(get_current_user)):
@@ -45,9 +49,13 @@ def update_message(message_id: int, update_data: MessageUpdate, db: Session = De
     return updated_message
 
 
-@router.post("/click_action")
-def click_action(action_type: str, context: str, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
-    print(f"Received action: {action_type}, context: {context}")
-    response = crud.handle_click_action(db, current_user, action_type, context)
-    print(f"Generated response: {response}")
-    return {"response": response}
+# @router.post("/click_action", response_model=Message)
+# def click_action(request: ClickActionRequest, db: Session = Depends(get_db), current_user: UserRead = Depends(get_current_user)):
+#     print(f"Received action: {request.action_type}, context: {request.context}")
+#     response_message = crud.handle_click_action(db, current_user.id, request.action_type, request.context)
+    
+#     if response_message is None:
+#         raise HTTPException(status_code=500, detail="Error handling click action")
+    
+#     print(f"Generated response: {response_message}")
+#     return response_message 

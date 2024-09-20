@@ -84,6 +84,86 @@ def generate_response(user_input: str, context: str, db: Session, user_id: int, 
         print(f"Error generating response from OpenAI: {e}")
         # Fallback response
         return fallback_response(user_input, context)
+    
+
+# def handle_click_action(db: Session, user_id: int, action_type: str, context: str) -> Optional[dict]:
+#     try:
+#         # Fetch recent chat history specific to the context
+#         recent_messages = get_recent_messages_by_context(db, user_id, context=context, limit=5)
+#         user_history = " ".join([msg.content for msg in recent_messages])
+
+#         # Define system prompts based on action type and user history
+#         system_prompts = {
+#             "Onboarding": {
+#                 "create_lead": (
+#                     f"You are Ava, an AI BDR specializing in B2B sales automation. Previous history: {user_history}. "
+#                     "The user wants to create a new lead. Ask for the lead’s name and contact information."
+#                 ),
+#                 "schedule_follow_up": (
+#                     f"You are Ava, an AI BDR specializing in B2B sales automation. Previous history: {user_history}. "
+#                     "The user wants to schedule a follow-up. Ask for the date and time."
+#                 ),
+#                 "generate_email_template": (
+#                     f"You are Ava, an AI BDR specializing in B2B sales automation. Previous history: {user_history}. "
+#                     "The user wants to generate an email template. Ask for the recipient and subject."
+#                 )
+#             },
+#             "Support": {
+#                 "create_lead": (
+#                     f"You are Elijah, an AI support expert. Previous history: {user_history}. "
+#                     "The user wants to create a new lead. Ask for the lead’s name and contact information."
+#                 ),
+#                 "schedule_follow_up": (
+#                     f"You are Elijah, an AI support expert. Previous history: {user_history}. "
+#                     "The user wants to schedule a follow-up. Ask for the date and time."
+#                 ),
+#                 "generate_email_template": (
+#                     f"You are Elijah, an AI support expert. Previous history: {user_history}. "
+#                     "The user wants to generate an email template. Ask for the recipient and subject."
+#                 )
+#             },
+#             "Marketing": {
+#                 "create_lead": (
+#                     f"You are Lucas, an AI marketing strategist. Previous history: {user_history}. "
+#                     "The user wants to create a new lead. Ask for the lead’s name and contact information."
+#                 ),
+#                 "schedule_follow_up": (
+#                     f"You are Lucas, an AI marketing strategist. Previous history: {user_history}. "
+#                     "The user wants to schedule a follow-up. Ask for the date and time."
+#                 ),
+#                 "generate_email_template": (
+#                     f"You are Lucas, an AI marketing strategist. Previous history: {user_history}. "
+#                     "The user wants to generate an email template. Ask for the recipient and subject."
+#                 )
+#             }
+#         }
+
+#         # Select the system prompt based on context and action type
+#         context_prompts = system_prompts.get(context, {})
+#         system_prompt = context_prompts.get(action_type, "You are an assistant. How can I assist you today?")
+
+#         # Make the API call to OpenAI with recent history and current input
+#         response = client.chat.completions.create(
+#             model="gpt-3.5-turbo",
+#             messages=[
+#                 {"role": "system", "content": system_prompt},
+#                 {"role": "user", "content": ""}
+#             ],
+#             max_tokens=200,
+#             temperature=0.7
+#         )
+
+#         assistant_response = response.choices[0]['message']['content'].strip()
+
+#         # Log the response for debugging
+#         print(f"Generated response: {assistant_response}")
+
+#         # Return the response as a dictionary
+#         return {"response": assistant_response}
+
+#     except Exception as e:
+#         print(f"Error handling click action: {e}")
+#         return {"error": str(e)}
 
 # Updated helper function to fetch recent messages for the specific context
 def get_recent_messages_by_context(db: Session, user_id: int, context: str, limit: int = 5) -> list[models.Message]:

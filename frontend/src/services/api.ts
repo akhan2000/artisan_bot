@@ -1,3 +1,6 @@
+
+//api.ts
+
 import axios from 'axios';
 
 // Base URL for the backend API. It uses an environment variable if available,
@@ -56,20 +59,20 @@ export async function sendMessage(content: string, role: string = "user", contex
     }
 }
 
-export const clickAction = async (actionType: string, context: string) => {
-    const response = await fetch(`${API_URL}/messages/click_action`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ actionType, context }),
-      });
-    if (!response.ok) {
-      throw new Error('Failed to handle click action');
-    }
-    return response.json();
-  };
-
+// export const clickAction = async (actionType: string, context: string): Promise<Message> => {
+//     try {
+//         const response = await axios.post<Message>(`${API_URL}/messages/click_action`, { action_type: actionType, context }, {
+//             headers: {
+//                 "Content-Type": "application/json",
+//                 ...getAuthHeaders(),
+//             },
+//         });
+//         return response.data;
+//     } catch (error) {
+//         console.error("Error handling click action:", error);
+//         throw error;
+//     }
+// };
 /**
  * Retrieves a list of messages from the backend API with pagination support.
  *

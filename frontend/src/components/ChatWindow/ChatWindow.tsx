@@ -24,9 +24,9 @@ import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { parse } from "marked";
 // Removed SplitscreenIcon as it's not used
-import { sendMessage, deleteMessage, updateMessage, getMessages, clickAction, Message as APIMessage } from "../../services/api";
+import { sendMessage, deleteMessage, updateMessage, getMessages, Message as APIMessage } from "../../services/api"; //clickAction
 import "./ChatWindow.css";
-import avatarImage from '../../assets/ava.png';  // Chatbot avatar
+import avatarImage from '../../assets/ava.png';  // Ava avatar
 import userAvatar from '../../assets/user-avatar.png';  // User avatar/Jaspar  
 import elijahAvatar from '../../assets/elijah.png';  // Elijah avatar
 import lucasAvatar from '../../assets/lucas.png';  // Lucas avatar
@@ -105,26 +105,6 @@ const ChatWindow: React.FC = () => {
     }
   };
 
-  const handleAction = async (actionType: string) => {
-    try {
-      const response = await clickAction(actionType, context);
-      console.log(response);
-  
-      // Update the messages state with the new assistant message
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { 
-          ...response, // Assuming response contains the complete ChatMessage object
-          isEditing: false 
-        }
-      ]);
-      scrollToBottom();
-    } catch (error) {
-      console.error("Error handling action:", error);
-    }
-  };
-    
-
   const handleEdit = (id: number) => {
     setEditingMessageId(id);
     setMessages((prevMessages) =>
@@ -133,6 +113,24 @@ const ChatWindow: React.FC = () => {
       )
     );
   };
+
+
+
+  // const handleAction = async (actionType: string) => {
+  //   try {
+  //     const response = await clickAction(actionType, context);
+  //     console.log(response);
+  
+      
+  //     setMessages((prevMessages) => [
+  //       ...prevMessages,
+  //       response 
+  //     ]);
+  //     scrollToBottom();
+  //   } catch (error) {
+  //     console.error("Error handling action:", error);
+  //   }
+  // };
 
 
   const handleContentChange = (id: number, newContent: string) => {
@@ -271,13 +269,6 @@ const ChatWindow: React.FC = () => {
                 </IconButton>
               </div>
             )}
-            {message.role === "assistant" && index === messages.findIndex(msg => msg.role === "assistant") && (
-              <div className="assistant-actions">
-                <Button onClick={() => handleAction('create_lead')} size="small">Create Lead</Button>
-                <Button onClick={() => handleAction('schedule_follow_up')} size="small">Schedule Follow-Up</Button>
-                <Button onClick={() => handleAction('generate_email_template')} size="small">Generate Email Template</Button>
-              </div>
-            )}
           </div>
         ))}
         <div ref={messagesEndRef} />
@@ -314,13 +305,13 @@ const ChatWindow: React.FC = () => {
             <MenuItem value="Support">Support</MenuItem>
             <MenuItem value="Marketing">Marketing</MenuItem>
           </Select>
+          <IconButton onClick={toggleSettings}>
+            <SettingsIcon />
+          </IconButton>
           <IconButton color="primary" onClick={handleSend}><SendIcon /></IconButton>
         </div>
       </div>
 
-      <IconButton onClick={toggleSettings}>
-        <SettingsIcon />
-      </IconButton>
 
       {/* Settings Dialog */}
       <Dialog open={settingsOpen} onClose={toggleSettings}>
