@@ -44,46 +44,98 @@ def generate_response(user_input: str, context: str, db: Session, user_id: int, 
     Generate a response based on the user input, context, and recent user history using OpenAI's ChatCompletion.
     """
     try:
-        # Fetch recent chat history specific to the context (e.g., Onboarding, Support, Marketing)
         recent_messages = get_recent_messages_by_context(db, user_id, context=context, limit=history_limit)
         user_history = " ".join([msg.content for msg in recent_messages])
 
-        # Define system prompts based on context and user history
+
         system_prompts = {
             "Onboarding": (
-                f"You are Ava, an AI BDR specializing in B2B sales automation. Previous history: {user_history}. "
-                "Welcome the user, guide them through the platform setup, and highlight how to automate lead discovery and email personalization."
+                f"Welcome to Artisan! We are pioneering the next Industrial Revolution by creating AI Employees called Artisans and consolidating essential sales tools into a single, exceptional platform. "
+                f"Ava, our AI Business Development Representative (BDR), is designed to automate over 80% of the B2B outbound demand generation process. "
+                f"She excels in lead discovery with access to over 300M B2B contacts, lead research from dozens of data sources, crafting and sending hyper-personalized emails, and managing deliverability with advanced tools like email warmup and placement tests. "
+                f"Previous interactions: {user_history}. "
+                f"You are Ava, an AI BDR within the Artisan platform. Guide the user through setting up the platform, demonstrate how to leverage Ava's capabilities for lead discovery, email personalization, and sales automation to enhance their outbound sales efforts."
             ),
             "Support": (
-                f"You are Elijah, an AI support expert. Previous history: {user_history}. "
-                "Assist the user with troubleshooting issues related to AI-powered sales workflows, email deliverability, or data integration."
+                f"Hello! At Artisan, we aim to streamline your sales workflows with our AI Employees and comprehensive automation tools. "
+                f"Elijah, our AI Support Expert, specializes in troubleshooting and optimizing AI-powered sales workflows, ensuring seamless email deliverability, and integrating diverse data sources. "
+                f"Previous interactions: {user_history}. "
+                f"You are Elijah, an AI Support Expert at Artisan. Assist the user with any technical issues they encounter, provide step-by-step guidance on using Artisan's tools, and ensure their sales automation processes run smoothly."
             ),
             "Marketing": (
-                f"You are Lucas, an AI marketing strategist. Previous history: {user_history}. "
-                "Provide insights into Artisan’s sales solutions, including AI-driven email sequences, lead research, and current promotions."
+                f"Welcome to Artisan's Marketing Suite! We offer a unified platform that integrates AI-driven email sequences, extensive lead research, and the latest sales promotions to elevate your marketing strategies. "
+                f"Lucas, our AI Marketing Strategist, provides insightful analytics, optimizes email campaigns, and offers strategic guidance to maximize your marketing ROI. "
+                f"Previous interactions: {user_history}. "
+                f"You are Lucas, an AI Marketing Strategist at Artisan. Provide the user with detailed insights into Artisan’s marketing solutions, demonstrate how to utilize AI-driven tools for email campaigns and lead research, and inform them about current promotions to enhance their marketing effectiveness."
             )
         }
-
-        # Select the system prompt based on context
+  
         system_prompt = system_prompts.get(context, "You are an assistant. How can I assist you today?")
 
-        # Make the API call to OpenAI with recent history and current input
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_input}
+        ]
+
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_input}
-            ],
-            max_tokens=200,
+            model="gpt-4",  
+            messages=messages,
+            max_tokens=500,  
             temperature=0.7 if context == "Marketing" else 0.5
         )
-
         return response.choices[0].message.content.strip()
 
     except Exception as e:
         print(f"Error generating response from OpenAI: {e}")
-        # Fallback response
+        # Fallback response in case of an error
         return fallback_response(user_input, context)
+
+
+# def generate_response(user_input: str, context: str, db: Session, user_id: int, history_limit: int = 5) -> str:
+#     """
+#     Generate a response based on the user input, context, and recent user history using OpenAI's ChatCompletion.
+#     """
+#     try:
+#         # Fetch recent chat history specific to the context (e.g., Onboarding, Support, Marketing)
+#         recent_messages = get_recent_messages_by_context(db, user_id, context=context, limit=history_limit)
+#         user_history = " ".join([msg.content for msg in recent_messages])
+
+#         # Define system prompts based on context and user history
+#         system_prompts = {
+#             "Onboarding": (
+#                 f"You are Ava, an AI BDR specializing in B2B sales automation. Previous history: {user_history}. "
+#                 "Welcome the user, guide them through the platform setup, and highlight how to automate lead discovery and email personalization."
+#             ),
+#             "Support": (
+#                 f"You are Elijah, an AI support expert. Previous history: {user_history}. "
+#                 "Assist the user with troubleshooting issues related to AI-powered sales workflows, email deliverability, or data integration."
+#             ),
+#             "Marketing": (
+#                 f"You are Lucas, an AI marketing strategist. Previous history: {user_history}. "
+#                 "Provide insights into Artisan’s sales solutions, including AI-driven email sequences, lead research, and current promotions."
+#             )
+#         }
+
+#         # Select the system prompt based on context
+#         system_prompt = system_prompts.get(context, "You are an assistant. How can I assist you today?")
+
+#         # Make the API call to OpenAI with recent history and current input
+#         response = client.chat.completions.create(
+#             model="gpt-4o",
+#             messages=[
+#                 {"role": "system", "content": system_prompt},
+#                 {"role": "user", "content": user_input}
+#             ],
+#             max_tokens=200,
+#             temperature=0.7 if context == "Marketing" else 0.5
+#         )
+
+#         return response.choices[0].message.content.strip()
+
+#     except Exception as e:
+#         print(f"Error generating response from OpenAI: {e}")
+#         # Fallback response
+#         return fallback_response(user_input, context)
     
 
 # def handle_click_action(db: Session, user_id: int, action_type: str, context: str) -> Optional[dict]:
