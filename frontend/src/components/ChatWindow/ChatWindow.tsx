@@ -105,6 +105,26 @@ const ChatWindow: React.FC = () => {
     }
   };
 
+  const handleAction = async (actionType: string) => {
+    try {
+      const response = await clickAction(actionType, context);
+      console.log(response);
+  
+      // Update the messages state with the new assistant message
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { 
+          ...response, // Assuming response contains the complete ChatMessage object
+          isEditing: false 
+        }
+      ]);
+      scrollToBottom();
+    } catch (error) {
+      console.error("Error handling action:", error);
+    }
+  };
+    
+
   const handleEdit = (id: number) => {
     setEditingMessageId(id);
     setMessages((prevMessages) =>
@@ -113,28 +133,6 @@ const ChatWindow: React.FC = () => {
       )
     );
   };
-
-  // ... existing code ...
-const handleAction = async (actionType: string) => {
-  try {
-    const response = await clickAction(actionType, context);
-    console.log(response);
-
-    // Update the messages state with the new assistant message
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { 
-        ...response, // Assuming response contains the complete ChatMessage object
-        isEditing: false 
-      }
-    ]);
-    scrollToBottom();
-  } catch (error) {
-    console.error("Error handling action:", error);
-  }
-};
-// ... existing code ...
-  
 
 
   const handleContentChange = (id: number, newContent: string) => {

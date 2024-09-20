@@ -57,7 +57,7 @@ export async function sendMessage(content: string, role: string = "user", contex
 }
 
 export const clickAction = async (actionType: string, context: string) => {
-    const response = await fetch(`${API_URL}/click_action`, {
+    const response = await fetch(`${API_URL}/messages/click_action`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
