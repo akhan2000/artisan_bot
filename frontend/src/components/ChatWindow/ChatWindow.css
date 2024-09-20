@@ -26,6 +26,19 @@
     text-align: center; /* Center the text */
 }
 
+.chat-header .fullscreen-icon {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+}
+
+
+.chat-header .logout-icon {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+}
+
 .chat-header-left {
     display: flex;
     flex-direction: column;
@@ -47,10 +60,6 @@
     transition: color 0.3s ease;
 }
 
-.chat-header-right {
-    display: flex;
-    gap: 8px;
-}
 
 .messages-container {
     flex-grow: 1;
