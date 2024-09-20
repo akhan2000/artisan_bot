@@ -264,79 +264,75 @@ const ChatWindow: React.FC = () => {
         <div ref={messagesEndRef} />
       </div>
       
-      <div className="input-area">
-        <div className="input-avatar-wrapper">
-          <Avatar src={userAvatar} alt="User Avatar" className="input-avatar" />
-          <TextField
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type a message..."
-            variant="outlined"
-            fullWidth
-            size="small"
-            onKeyPress={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                handleSend();
-                e.preventDefault();
-              }
-            }}
-          />
-        </div>
-        <div className="input-row">
-          <span className="context-label">Context</span>
-          <Select
-            value={context}
-            onChange={handleContextChange}
-            className="context-select"
-            variant="outlined"
-            size="small"
-          >
-            <MenuItem value="Onboarding">Onboarding</MenuItem>
-            <MenuItem value="Support">Support</MenuItem>
-            <MenuItem value="Marketing">Marketing</MenuItem>
-          </Select>
-          <IconButton onClick={() => handleAction('create_lead')}>Create Lead</IconButton>
-          <IconButton onClick={() => handleAction('schedule_follow_up')}>Schedule Follow-Up</IconButton>
-          <IconButton onClick={() => handleAction('generate_email_template')}>Generate Email Template</IconButton>
-          <IconButton color="primary" onClick={handleSend}><SendIcon /></IconButton>
-        </div>
-      </div>
+      // ... existing code ...
 
-          <IconButton onClick={toggleSettings}>
-            <SettingsIcon />
-          </IconButton>
-          <IconButton color="primary" onClick={handleSend}>
-            <SendIcon />
-          </IconButton>
-        </div>
-      </div>
-      
-      {/* Settings Dialog */}
-      <Dialog open={settingsOpen} onClose={toggleSettings}>
-        <DialogTitle>Settings</DialogTitle>
-        <DialogContent>
-          <FormControlLabel
-            control={<Switch checked={theme === "dark"} onChange={handleThemeChange} />}
-            label="Dark Mode"
-          />
-          <div style={{ marginTop: 16 }}>
-            <p>Language</p>
-            <Select value={language} onChange={handleLanguageChange} fullWidth>
-              <MenuItem value="en">English</MenuItem>
-              <MenuItem value="es">Spanish</MenuItem>
-              <MenuItem value="fr">French</MenuItem>
-            </Select>
-          </div>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={toggleSettings} color="primary">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
+<div className="input-area">
+  <div className="input-avatar-wrapper">
+    <Avatar src={userAvatar} alt="User Avatar" className="input-avatar" />
+    <TextField
+      value={input}
+      onChange={(e) => setInput(e.target.value)}
+      placeholder="Type a message..."
+      variant="outlined"
+      fullWidth
+      size="small"
+      onKeyPress={(e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          handleSend();
+          e.preventDefault();
+        }
+      }}
+    />
+  </div>
+  <div className="input-row">
+    <span className="context-label">Context</span>
+    <Select
+      value={context}
+      onChange={handleContextChange}
+      className="context-select"
+      variant="outlined"
+      size="small"
+    >
+      <MenuItem value="Onboarding">Onboarding</MenuItem>
+      <MenuItem value="Support">Support</MenuItem>
+      <MenuItem value="Marketing">Marketing</MenuItem>
+    </Select>
+    <IconButton onClick={() => handleAction('create_lead')}>Create Lead</IconButton>
+    <IconButton onClick={() => handleAction('schedule_follow_up')}>Schedule Follow-Up</IconButton>
+    <IconButton onClick={() => handleAction('generate_email_template')}>Generate Email Template</IconButton>
+    <IconButton color="primary" onClick={handleSend}><SendIcon /></IconButton>
+  </div>
+</div>
+
+<IconButton onClick={toggleSettings}>
+  <SettingsIcon />
+</IconButton>
+
+{/* Settings Dialog */}
+<Dialog open={settingsOpen} onClose={toggleSettings}>
+  <DialogTitle>Settings</DialogTitle>
+  <DialogContent>
+    <FormControlLabel
+      control={<Switch checked={theme === "dark"} onChange={handleThemeChange} />}
+      label="Dark Mode"
+    />
+    <div style={{ marginTop: 16 }}>
+      <p>Language</p>
+      <Select value={language} onChange={handleLanguageChange} fullWidth>
+        <MenuItem value="en">English</MenuItem>
+        <MenuItem value="es">Spanish</MenuItem>
+        <MenuItem value="fr">French</MenuItem>
+      </Select>
     </div>
-  );
-  
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={toggleSettings} color="primary">
+      Close
+    </Button>
+  </DialogActions>
+</Dialog>
+</div>
+);
 };
 
 export default ChatWindow;
