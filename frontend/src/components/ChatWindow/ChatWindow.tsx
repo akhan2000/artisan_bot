@@ -114,6 +114,15 @@ const ChatWindow: React.FC = () => {
     );
   };
 
+  const handleAction = async (actionType: string) => {
+    try {
+      const response = await sendMessage("click_action", actionType, context);
+      // Display response or ask follow-up questions based on the action
+    } catch (error) {
+      console.error("Error handling action:", error);
+    }
+  };
+
   const handleContentChange = (id: number, newContent: string) => {
     setMessages((prevMessages) =>
       prevMessages.map((message) =>
@@ -286,6 +295,12 @@ const ChatWindow: React.FC = () => {
             <MenuItem value="Support">Support</MenuItem>
             <MenuItem value="Marketing">Marketing</MenuItem>
           </Select>
+          <IconButton onClick={() => handleAction('create_lead')}>Create Lead</IconButton>
+          <IconButton onClick={() => handleAction('schedule_follow_up')}>Schedule Follow-Up</IconButton>
+          <IconButton onClick={() => handleAction('generate_email_template')}>Generate Email Template</IconButton>
+          <IconButton color="primary" onClick={handleSend}><SendIcon /></IconButton>
+        </div>
+      </div>
 
           <IconButton onClick={toggleSettings}>
             <SettingsIcon />
