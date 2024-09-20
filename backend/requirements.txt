@@ -4,7 +4,7 @@ anyio==4.4.0
 argon2-cffi==23.1.0
 argon2-cffi-bindings==21.2.0
 asyncpg==0.29.0
-bcrypt==4.2.0
+bcrypt==4.1.2
 certifi==2024.8.30
 cffi==1.17.1
 click==8.1.7
