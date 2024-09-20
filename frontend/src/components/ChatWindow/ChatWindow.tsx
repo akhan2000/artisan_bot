@@ -118,6 +118,8 @@ const ChatWindow: React.FC = () => {
 const handleAction = async (actionType: string) => {
   try {
     const response = await clickAction(actionType, context);
+    console.log(response);
+
     // Update the messages state with the new assistant message
     setMessages((prevMessages) => [
       ...prevMessages,

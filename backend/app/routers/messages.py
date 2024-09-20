@@ -47,5 +47,7 @@ def update_message(message_id: int, update_data: MessageUpdate, db: Session = De
 
 @router.post("/click_action")
 def click_action(action_type: str, context: str, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)):
+    print(f"Received action: {action_type}, context: {context}")
     response = crud.handle_click_action(db, current_user, action_type, context)
+    print(f"Generated response: {response}")
     return {"response": response}

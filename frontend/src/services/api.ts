@@ -57,13 +57,13 @@ export async function sendMessage(content: string, role: string = "user", contex
 }
 
 export const clickAction = async (actionType: string, context: string) => {
-    const response = await fetch('/api/click_action', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ actionType, context }),
-    });
+    const response = await fetch(`${API_URL}/click_action`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ actionType, context }),
+      });
     if (!response.ok) {
       throw new Error('Failed to handle click action');
     }
