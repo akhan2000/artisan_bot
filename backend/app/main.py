@@ -12,7 +12,7 @@ app = FastAPI()
 
 # Define allowed origins
 origins = [
-    "https://artisan-bot-five.vercel.app/",  # Add your Vercel frontend URL here
+    "https://artisan-bot-five.vercel.app",  # Add your Vercel frontend URL here
     "https://artisanbot-production.up.railway.app"  # Your backend URL
 ]
 
