@@ -5,6 +5,7 @@ import axios from 'axios';
 // development and production environments.
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
+
 /**
  * Retrieves the authentication headers containing the JWT token.
  * This function checks localStorage for a stored token and, if found,
