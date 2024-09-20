@@ -1,8 +1,10 @@
 # app/database.py
+from dotenv import load_dotenv
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+load_dotenv()
 
 # Use the DATABASE_URL provided by Railway
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
