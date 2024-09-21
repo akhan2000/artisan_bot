@@ -1,8 +1,10 @@
+// src/components/Register.tsx
+
 import React, { useState } from 'react';
 import { register } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { TextField, Button, Container, Typography, Box } from '@mui/material';
-import './Register.css';  // Add a custom CSS file to manage specific styles
+import './Register.css';  // Ensure this CSS file exists and is correctly styled
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -80,6 +82,22 @@ const Register: React.FC = () => {
               Register
             </Button>
           </Box>
+          {/* Added Login Button Below */}
+          <Box mt={2}>
+            <Typography variant="body2" align="center">
+              Already have an account?
+            </Typography>
+            <Button
+              fullWidth
+              variant="text"
+              color="secondary"
+              onClick={() => navigate('/login')}
+              className="login-button"
+              style={{ marginTop: '8px' }}
+            >
+              Login
+            </Button>
+          </Box>
         </div>
       </Box>
     </Container>
@@ -87,3 +105,4 @@ const Register: React.FC = () => {
 };
 
 export default Register;
+

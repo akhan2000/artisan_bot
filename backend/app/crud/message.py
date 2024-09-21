@@ -44,10 +44,11 @@ def generate_response(user_input: str, context: str, db: Session, user_id: int, 
     Generate a response based on the user input, context, and recent user history using OpenAI's ChatCompletion.
     """
     try:
+        # Fetch recent chat history specific to the context (e.g., Onboarding, Support, Marketing)
         recent_messages = get_recent_messages_by_context(db, user_id, context=context, limit=history_limit)
         user_history = " ".join([msg.content for msg in recent_messages])
 
-
+        # Define enhanced system prompts based on context with rich company and product details
         system_prompts = {
             "Onboarding": (
                 f"Welcome to Artisan! We are pioneering the next Industrial Revolution by creating AI Employees called Artisans and consolidating essential sales tools into a single, exceptional platform. "
@@ -91,145 +92,87 @@ def generate_response(user_input: str, context: str, db: Session, user_id: int, 
         return fallback_response(user_input, context)
 
 
-# def generate_response(user_input: str, context: str, db: Session, user_id: int, history_limit: int = 5) -> str:
-#     """
-#     Generate a response based on the user input, context, and recent user history using OpenAI's ChatCompletion.
-#     """
-#     try:
-#         # Fetch recent chat history specific to the context (e.g., Onboarding, Support, Marketing)
-#         recent_messages = get_recent_messages_by_context(db, user_id, context=context, limit=history_limit)
-#         user_history = " ".join([msg.content for msg in recent_messages])
+def handle_click_action(db: Session, user_id: int, action_type: str, context: str) -> models.Message:
+    try:
+        system_prompts = {
+            "Onboarding": "You are Ava, an AI BDR specializing in B2B sales automation.",
+            "Support": "You are Elijah, an AI support expert.",
+            "Marketing": "You are Lucas, an AI marketing strategist.",
+        }
 
-#         # Define system prompts based on context and user history
-#         system_prompts = {
-#             "Onboarding": (
-#                 f"You are Ava, an AI BDR specializing in B2B sales automation. Previous history: {user_history}. "
-#                 "Welcome the user, guide them through the platform setup, and highlight how to automate lead discovery and email personalization."
-#             ),
-#             "Support": (
-#                 f"You are Elijah, an AI support expert. Previous history: {user_history}. "
-#                 "Assist the user with troubleshooting issues related to AI-powered sales workflows, email deliverability, or data integration."
-#             ),
-#             "Marketing": (
-#                 f"You are Lucas, an AI marketing strategist. Previous history: {user_history}. "
-#                 "Provide insights into Artisan’s sales solutions, including AI-driven email sequences, lead research, and current promotions."
-#             )
-#         }
+        action_prompts = {
+            "create_lead": "The user wants to create a new lead. Ask for the lead’s name and contact information.",
+            "schedule_follow_up": "The user wants to schedule a follow-up. Ask for the date and time.",
+            "generate_email_template": "The user wants to generate an email template. Ask for the recipient and subject."
+        }
 
-#         # Select the system prompt based on context
-#         system_prompt = system_prompts.get(context, "You are an assistant. How can I assist you today?")
+        system_prompt = system_prompts.get(context, "You are an assistant. How can I assist you today?")
+        action_prompt = action_prompts.get(action_type, "How can I assist you today?")
 
-#         # Make the API call to OpenAI with recent history and current input
-#         response = client.chat.completions.create(
-#             model="gpt-4o",
-#             messages=[
-#                 {"role": "system", "content": system_prompt},
-#                 {"role": "user", "content": user_input}
-#             ],
-#             max_tokens=200,
-#             temperature=0.7 if context == "Marketing" else 0.5
-#         )
+        full_prompt = f"{system_prompt} {action_prompt}"
 
-#         return response.choices[0].message.content.strip()
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": full_prompt},
+                {"role": "user", "content": ""}
+            ],
+            max_tokens=200,
+            temperature=0.7 if context == "Marketing" else 0.5
+        )
 
-#     except Exception as e:
-#         print(f"Error generating response from OpenAI: {e}")
-#         # Fallback response
-#         return fallback_response(user_input, context)
-    
+        assistant_response = response.choices[0].message.content.strip()
 
-# def handle_click_action(db: Session, user_id: int, action_type: str, context: str) -> Optional[dict]:
-#     try:
-#         # Fetch recent chat history specific to the context
-#         recent_messages = get_recent_messages_by_context(db, user_id, context=context, limit=5)
-#         user_history = " ".join([msg.content for msg in recent_messages])
+        # Create and store the assistant's message
+        db_assistant_message = models.Message(
+            role="assistant",
+            content=assistant_response,
+            user_id=user_id,
+            context=context
+        )
+        db.add(db_assistant_message)
+        db.commit()
+        db.refresh(db_assistant_message)
 
-#         # Define system prompts based on action type and user history
-#         system_prompts = {
-#             "Onboarding": {
-#                 "create_lead": (
-#                     f"You are Ava, an AI BDR specializing in B2B sales automation. Previous history: {user_history}. "
-#                     "The user wants to create a new lead. Ask for the lead’s name and contact information."
-#                 ),
-#                 "schedule_follow_up": (
-#                     f"You are Ava, an AI BDR specializing in B2B sales automation. Previous history: {user_history}. "
-#                     "The user wants to schedule a follow-up. Ask for the date and time."
-#                 ),
-#                 "generate_email_template": (
-#                     f"You are Ava, an AI BDR specializing in B2B sales automation. Previous history: {user_history}. "
-#                     "The user wants to generate an email template. Ask for the recipient and subject."
-#                 )
-#             },
-#             "Support": {
-#                 "create_lead": (
-#                     f"You are Elijah, an AI support expert. Previous history: {user_history}. "
-#                     "The user wants to create a new lead. Ask for the lead’s name and contact information."
-#                 ),
-#                 "schedule_follow_up": (
-#                     f"You are Elijah, an AI support expert. Previous history: {user_history}. "
-#                     "The user wants to schedule a follow-up. Ask for the date and time."
-#                 ),
-#                 "generate_email_template": (
-#                     f"You are Elijah, an AI support expert. Previous history: {user_history}. "
-#                     "The user wants to generate an email template. Ask for the recipient and subject."
-#                 )
-#             },
-#             "Marketing": {
-#                 "create_lead": (
-#                     f"You are Lucas, an AI marketing strategist. Previous history: {user_history}. "
-#                     "The user wants to create a new lead. Ask for the lead’s name and contact information."
-#                 ),
-#                 "schedule_follow_up": (
-#                     f"You are Lucas, an AI marketing strategist. Previous history: {user_history}. "
-#                     "The user wants to schedule a follow-up. Ask for the date and time."
-#                 ),
-#                 "generate_email_template": (
-#                     f"You are Lucas, an AI marketing strategist. Previous history: {user_history}. "
-#                     "The user wants to generate an email template. Ask for the recipient and subject."
-#                 )
-#             }
-#         }
+        return db_assistant_message
 
-#         # Select the system prompt based on context and action type
-#         context_prompts = system_prompts.get(context, {})
-#         system_prompt = context_prompts.get(action_type, "You are an assistant. How can I assist you today?")
+    except Exception as e:
+        print(f"Error handling click action: {e}")
+        # Fallback response in case of an error
+        fallback = fallback_response("", context)
+        db_assistant_message = models.Message(
+            role="assistant",
+            content=fallback,
+            user_id=user_id,
+            context=context
+        )
+        db.add(db_assistant_message)
+        db.commit()
+        db.refresh(db_assistant_message)
+        return db_assistant_message
 
-#         # Make the API call to OpenAI with recent history and current input
-#         response = client.chat.completions.create(
-#             model="gpt-3.5-turbo",
-#             messages=[
-#                 {"role": "system", "content": system_prompt},
-#                 {"role": "user", "content": ""}
-#             ],
-#             max_tokens=200,
-#             temperature=0.7
-#         )
 
-#         assistant_response = response.choices[0]['message']['content'].strip()
+def get_message(db: Session, message_id: int, user_id: int) -> Optional[models.Message]:
+    """
+    Retrieve a single message by its ID and user ID.
+    """
+    return db.query(models.Message).filter(models.Message.id == message_id, models.Message.user_id == user_id).first()
 
-#         # Log the response for debugging
-#         print(f"Generated response: {assistant_response}")
 
-#         # Return the response as a dictionary
-#         return {"response": assistant_response}
-
-#     except Exception as e:
-#         print(f"Error handling click action: {e}")
-#         return {"error": str(e)}
-
-# Updated helper function to fetch recent messages for the specific context
 def get_recent_messages_by_context(db: Session, user_id: int, context: str, limit: int = 5) -> list[models.Message]:
     """
     Fetch the most recent messages from the database for a given user and context.
     """
     return db.query(models.Message).filter(models.Message.user_id == user_id, models.Message.context == context).order_by(models.Message.timestamp.desc()).limit(limit).all()
 
-# Existing helper function for getting messages without context filtering
-def get_messages(db: Session, user_id: int, skip: int = 0, limit: int = 10) -> list[models.Message]:
+def get_messages(db: Session, user_id: int, skip: int = 0, limit: int = 10, context: Optional[str] = None) -> list[models.Message]:
     """
-    Fetch a list of messages for a user without filtering by context.
+    Fetch a list of messages for a user with optional context filtering.
     """
-    return db.query(models.Message).filter(models.Message.user_id == user_id).order_by(models.Message.timestamp.asc()).offset(skip).limit(limit).all()
+    query = db.query(models.Message).filter(models.Message.user_id == user_id)
+    if context:
+        query = query.filter(models.Message.context == context)
+    return query.order_by(models.Message.timestamp.asc()).offset(skip).limit(limit).all()
 
 def fallback_response(user_input: str, context: str) -> str:
     """
@@ -251,40 +194,6 @@ def fallback_response(user_input: str, context: str) -> str:
     else:
         return "How can I assist you today?"
     
-
-
-def handle_click_action(db: Session, user_id: int, action_type: str, context: str) -> str:
-    try:
-        system_prompts = {
-            "Onboarding": "You are Ava, an AI BDR specializing in B2B sales automation.",
-            "Support": "You are Elijah, an AI support expert.",
-            "Marketing": "You are Lucas, an AI marketing strategist.",
-        }
-
-        if action_type == "create_lead":
-            system_prompt = f"{system_prompts[context]} The user wants to create a new lead. Ask for the lead’s name and contact information."
-        elif action_type == "schedule_follow_up":
-            system_prompt = f"{system_prompts[context]} The user wants to schedule a follow-up. Ask for the date and time."
-        elif action_type == "generate_email_template":
-            system_prompt = f"{system_prompts[context]} The user wants to generate an email template. Ask for the recipient and subject."
-        else:
-            system_prompt = system_prompts.get(context, "You are an assistant. How can I assist you today?")
-
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": ""}
-            ],
-            max_tokens=200,
-            temperature=0.7 if context == "Marketing" else 0.5
-        )
-
-        return response.choices[0].message.content.strip()
-
-    except Exception as e:
-        print(f"Error handling click action: {e}")
-        return fallback_response("", context)
 
 def delete_message(db: Session, message_id: int, user_id: int) -> Optional[models.Message]:
     message = db.query(models.Message).filter(models.Message.id == message_id, models.Message.user_id == user_id).first()

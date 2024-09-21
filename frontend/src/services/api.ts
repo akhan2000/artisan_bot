@@ -3,9 +3,6 @@
 
 import axios from 'axios';
 
-// Base URL for the backend API. It uses an environment variable if available,
-// otherwise defaults to 'http://localhost:8000'. This allows flexibility between
-// development and production environments.
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 
@@ -59,20 +56,20 @@ export async function sendMessage(content: string, role: string = "user", contex
     }
 }
 
-// export const clickAction = async (actionType: string, context: string): Promise<Message> => {
-//     try {
-//         const response = await axios.post<Message>(`${API_URL}/messages/click_action`, { action_type: actionType, context }, {
-//             headers: {
-//                 "Content-Type": "application/json",
-//                 ...getAuthHeaders(),
-//             },
-//         });
-//         return response.data;
-//     } catch (error) {
-//         console.error("Error handling click action:", error);
-//         throw error;
-//     }
-// };
+export async function clickAction(actionType: string, context: string): Promise<Message> {
+    try {
+        const response = await axios.post<Message>(`${API_URL}/messages/click_action`, { action_type: actionType, context }, {
+            headers: {
+                "Content-Type": "application/json",
+                ...getAuthHeaders(),
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error handling click action:", error);
+        throw error;
+    }
+}
 /**
  * Retrieves a list of messages from the backend API with pagination support.
  *
@@ -82,16 +79,16 @@ export async function sendMessage(content: string, role: string = "user", contex
  *
  * @throws Will throw an error if the request fails.
  */
-export async function getMessages(skip: number = 0, limit: number = 10): Promise<Message[]> {
+export async function getMessages(skip: number = 0, limit: number = 10, context: string = "Onboarding"): Promise<Message[]> {
     try {
         const response = await axios.get<Message[]>(`${API_URL}/messages/`, {
-            headers: getAuthHeaders(), // Attach auth headers if available
-            params: { skip, limit }, // Query parameters for pagination
+            headers: getAuthHeaders(),
+            params: { skip, limit, context }, // Pass context as a query parameter
         });
         return response.data;
     } catch (error) {
         console.error("Error getting messages:", error);
-        throw error; // Propagate error to be handled by the caller
+        throw error;
     }
 }
 

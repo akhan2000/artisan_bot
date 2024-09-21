@@ -1,5 +1,3 @@
-// src/components/ChatWindow/ChatWindow.tsx
-
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { 
   Avatar, 
@@ -14,8 +12,9 @@ import {
   DialogActions, 
   MenuItem, 
   Select, 
-  SelectChangeEvent 
-} from "@mui/material"; // for clean UI icons 
+  SelectChangeEvent,
+  Tooltip,
+} from "@mui/material";
 import SendIcon from '@mui/icons-material/Send';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -23,17 +22,15 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { parse } from "marked";
-// Removed SplitscreenIcon as it's not used
-import { sendMessage, deleteMessage, updateMessage, getMessages, Message as APIMessage } from "../../services/api"; //clickAction
+import { sendMessage, deleteMessage, updateMessage, getMessages, clickAction, Message as APIMessage } from "../../services/api";
 import "./ChatWindow.css";
-import avatarImage from '../../assets/ava.png';  // Ava avatar
-import userAvatar from '../../assets/user-avatar.png';  // User avatar/Jaspar  
-import elijahAvatar from '../../assets/elijah.png';  // Elijah avatar
-import lucasAvatar from '../../assets/lucas.png';  // Lucas avatar
+import avatarImage from '../../assets/ava.png';  
+import userAvatar from '../../assets/user-avatar.png';  
+import elijahAvatar from '../../assets/elijah.png';  
+import lucasAvatar from '../../assets/lucas.png';  
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../context/AuthContext'; // Import AuthContext (for state management)
+import { AuthContext } from '../../context/AuthContext';
 
-// APIMessage interface includes isEditing
 interface ChatMessage extends APIMessage {
   isEditing?: boolean;
 }
@@ -41,7 +38,7 @@ interface ChatMessage extends APIMessage {
 const ChatWindow: React.FC = () => {
   const defaultMessage: ChatMessage[] = [];
   
-  const { logout } = useContext(AuthContext); //  logout function (linked with logout icon on top right of pane in UI)
+  const { logout } = useContext(AuthContext); 
   const [messages, setMessages] = useState<ChatMessage[]>(defaultMessage);
   const [input, setInput] = useState<string>("");
   const [editingMessageId, setEditingMessageId] = useState<number | null>(null);
@@ -67,19 +64,12 @@ const ChatWindow: React.FC = () => {
 
   const fetchMessages = async () => {
     try {
-      const fetchedMessages = await getMessages(0, 100); // Can adjust as needed 
-      
-      // Filter messages based on the selected context  (logic for managing context dependent chat history being fed to LLM API)
-      const filteredMessages = fetchedMessages
-        .filter(msg => msg.context === context)
-        .map(msg => ({ ...msg, isEditing: false }));
-      
+      const fetchedMessages = await getMessages(0, 100, context); // Pass context
+      const filteredMessages = fetchedMessages.map(msg => ({ ...msg, isEditing: false }));
       setMessages(filteredMessages); 
-
       scrollToBottom();
     } catch (error) {
       console.error("Failed to fetch messages:", error);
-
     }
   };
 
@@ -87,70 +77,54 @@ const ChatWindow: React.FC = () => {
     const trimmedInput = input.trim();
     if (trimmedInput) {
       try {
-        // Include the current context when sending the message (including context as a param for seperation of functionality of chat agents)
         const newMessage = await sendMessage(trimmedInput, "user", context);
-        
-        // Update the messages state with the new user message
-        setMessages((prevMessages) => [...prevMessages, { ...newMessage, isEditing: false }]);
-        
-        // Clear the input field
+        setMessages(prevMessages => [...prevMessages, { ...newMessage, isEditing: false }]);
         setInput("");
-        
-        // Fetch messages again to retrieve the assistant's response
         await fetchMessages();
       } catch (error) {
         console.error("Failed to send message:", error);
-        // for additional error handling
       }
     }
   };
 
   const handleEdit = (id: number) => {
     setEditingMessageId(id);
-    setMessages((prevMessages) =>
-      prevMessages.map((message) =>
+    setMessages(prevMessages =>
+      prevMessages.map(message =>
         message.id === id ? { ...message, isEditing: true } : message
       )
     );
   };
 
-
-
-  // const handleAction = async (actionType: string) => {
-  //   try {
-  //     const response = await clickAction(actionType, context);
-  //     console.log(response);
-  
-      
-  //     setMessages((prevMessages) => [
-  //       ...prevMessages,
-  //       response 
-  //     ]);
-  //     scrollToBottom();
-  //   } catch (error) {
-  //     console.error("Error handling action:", error);
-  //   }
-  // };
-
+  const handleAction = async (actionType: string) => {
+    try {
+      const response = await clickAction(actionType, context);
+      console.log(response);
+      setMessages(prevMessages => [...prevMessages, { ...response, isEditing: false }]);
+      scrollToBottom();
+    } catch (error) {
+      console.error("Error handling action:", error);
+    }
+  };
 
   const handleContentChange = (id: number, newContent: string) => {
-    setMessages((prevMessages) =>
-      prevMessages.map((message) =>
+    setMessages(prevMessages =>
+      prevMessages.map(message =>
         message.id === id ? { ...message, content: newContent } : message
       )
     );
   };
 
   const saveEdit = async (id: number) => {
-    const message = messages.find((msg) => msg.id === id);
+    const message = messages.find(msg => msg.id === id);
     if (message) {
       try {
         if (message.content.trim() === "") {
-          await handleDelete(id); // If content is empty, treat it as a delete action
+          await handleDelete(id);
         } else {
           const updatedMessage = await updateMessage(id, message.content);
-          setMessages((prevMessages) =>
-            prevMessages.map((msg) =>
+          setMessages(prevMessages =>
+            prevMessages.map(msg =>
               msg.id === id ? { ...updatedMessage, isEditing: false } : msg
             )
           );
@@ -165,8 +139,8 @@ const ChatWindow: React.FC = () => {
   const handleDelete = async (id: number) => {
     try {
       await deleteMessage(id);
-      setMessages((prevMessages) =>
-        prevMessages.filter((message) => message.id !== id)
+      setMessages(prevMessages =>
+        prevMessages.filter(message => message.id !== id)
       );
       setEditingMessageId(null);
     } catch (error) {
@@ -190,13 +164,12 @@ const ChatWindow: React.FC = () => {
   const handleContextChange = (event: SelectChangeEvent) => {
     const newContext = event.target.value as string;
     setContext(newContext);
-
     fetchMessages();
   };
 
   const handleLogout = () => {
     logout(); 
-    navigate('/login'); // Redirect to login page
+    navigate('/login'); 
   };
 
   const handleFullscreen = () => {
@@ -207,6 +180,48 @@ const ChatWindow: React.FC = () => {
         document.exitFullscreen();
       }
     }
+  };
+
+  // Define available actions based on context
+  const actionTypesByContext: Record<string, string[]> = {
+    "Onboarding": ["create_lead", "schedule_follow_up", "generate_email_template"],
+    "Support": ["create_lead", "schedule_follow_up", "generate_email_template"],
+    "Marketing": ["create_lead", "schedule_follow_up", "generate_email_template"],
+  };
+
+  // Helper function to get readable labels
+  const getActionLabel = (actionType: string): string => {
+    switch(actionType) {
+      case "create_lead":
+        return "Create Lead";
+      case "schedule_follow_up":
+        return "Schedule Follow-Up";
+      case "generate_email_template":
+        return "Generate Email";
+      default:
+        return "Action";
+    }
+  };
+
+  // Render Action Buttons
+  const renderActionButtons = () => {
+    const actions = actionTypesByContext[context] || [];
+    return (
+      <div className="action-buttons">
+        {actions.map(action => (
+          <Tooltip key={action} title={getActionLabel(action)}>
+            <Button 
+              variant="contained" 
+              color="primary" 
+              onClick={() => handleAction(action)}
+              style={{ margin: '4px', minWidth: '140px' }}
+            >
+              {getActionLabel(action)}
+            </Button>
+          </Tooltip>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -228,14 +243,22 @@ const ChatWindow: React.FC = () => {
       </div>
 
       <div className="messages-container">
-        {messages.map((message, index) => (
+        {messages.map((message) => (
           <div
             key={message.id}
             className={`message-container ${message.role === "user" ? "user-message" : "assistant-message"}`}
           >
             <Avatar 
               alt={`${message.role === "user" ? "User" : "Assistant"} Avatar`} 
-              src={message.role === "user" ? userAvatar : context === "Onboarding" ? avatarImage : context === "Support" ? elijahAvatar : lucasAvatar}  // Assistant avatar based on context
+              src={
+                message.role === "user" 
+                  ? userAvatar 
+                  : context === "Onboarding" 
+                      ? avatarImage 
+                      : context === "Support" 
+                          ? elijahAvatar 
+                          : lucasAvatar
+              }
               className="message-avatar" 
             />
             {message.isEditing ? (
@@ -274,6 +297,9 @@ const ChatWindow: React.FC = () => {
         <div ref={messagesEndRef} />
       </div>
 
+      {/* Action Buttons Section */}
+      {renderActionButtons()}
+
       <div className="input-area">
         <div className="input-avatar-wrapper">
           <Avatar src={userAvatar} alt="User Avatar" className="input-avatar" />
@@ -284,13 +310,16 @@ const ChatWindow: React.FC = () => {
             variant="outlined"
             fullWidth
             size="small"
-            onKeyPress={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                handleSend();
-                e.preventDefault();
+            multiline
+            maxRows={4} // Limit the number of visible rows
+            onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                    handleSend();
+                    e.preventDefault(); // Prevents the addition of a new line
               }
             }}
           />
+          
         </div>
         <div className="input-row">
           <span className="context-label">Context</span>
@@ -308,10 +337,11 @@ const ChatWindow: React.FC = () => {
           <IconButton onClick={toggleSettings}>
             <SettingsIcon />
           </IconButton>
-          <IconButton color="primary" onClick={handleSend}><SendIcon /></IconButton>
+          <IconButton color="primary" onClick={handleSend}>
+            <SendIcon />
+          </IconButton>
         </div>
       </div>
-
 
       {/* Settings Dialog */}
       <Dialog open={settingsOpen} onClose={toggleSettings}>

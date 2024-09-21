@@ -9,9 +9,9 @@ class MessageBase(BaseModel):
     content: str
     context: Optional[str] = "Onboarding"  # New field
 
-# class ClickActionRequest(BaseModel):
-#     action_type: str
-#     context: str
+class ClickActionRequest(BaseModel):
+    action_type: str
+    context: str
 
 
 class MessageCreate(MessageBase):

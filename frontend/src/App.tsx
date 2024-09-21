@@ -30,7 +30,8 @@ const App: React.FC = () => {
           path="/register" 
           element={isAuthenticated ? <Navigate to="/" /> : <Register />} 
         />
-        {/* Add more routes as needed */}
+        {/* Redirect any unknown routes to login */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
   );
