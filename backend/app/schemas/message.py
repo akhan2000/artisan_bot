@@ -22,6 +22,8 @@ class Message(MessageBase):
     id: int
     timestamp: datetime
     user_id: int
+    is_edited: bool
+    is_deleted: bool
 
     class Config:
         from_attributes = True

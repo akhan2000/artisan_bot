@@ -1,10 +1,11 @@
 /* Chatbox Container */
 .chat-window {
-    width: 600px; /* Increased from 400px */
-    height: 800px; /* Added fixed height */
-    max-height: 80vh; /* Adjusted max-height for responsiveness */
+    width: 90vw; /* Changed from fixed width to 90% of viewport width */
+    height: 90vh; /* Changed from fixed height to 90% of viewport height */
+    max-width: 600px; /* Set a maximum width for larger screens */
+    max-height: 800px; /* Set a maximum height */
     background-color: #fff;
-    border-radius: 16px; /* Optional: Keep or set to 0 for fully rectangular */
+    border-radius: 16px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
@@ -225,8 +226,11 @@ input[type="text"] {
 /* Responsive Design */
 @media (max-width: 600px) {
     .chat-window {
-        width: 90vw;
-        height: 90vh;
+        width: 95vw;
+        height: 95vh;
+        max-width: none;
+        max-height: none;
+        border-radius: 0; /* Remove rounding for full-screen on mobile */
     }
 
     .action-buttons {
@@ -287,9 +291,9 @@ textarea,
 }
 
 .dark-theme input[type="text"] {
-    background-color: #555;
-    border-color: #777;
-    color: #eee;
+    background-color: #666; /* Lighter background for better contrast */
+    border-color: #999; /* Darker border for visibility */
+    color: #fff; /* White text for readability */
 }
 
 .dark-theme input[type="text"]::placeholder {
@@ -327,19 +331,21 @@ textarea,
     color: #eee;
 }
 
+.dark-theme .action-buttons Button {
+    background-color: #6c63ff;
+    color: #fff;
+}
+
+.dark-theme .action-buttons Button:hover {
+    background-color: #5a4fcc;
+    color: #fff;
+}
+
 .dark-theme .message-actions .MuiIconButton-root {
     color: #fff;
 }
 
 .dark-theme .message-actions .MuiIconButton-root:hover {
-    color: #ddd;
-}
-
-.dark-theme .chat-header-right .MuiIconButton-root {
-    color: #fff;
-}
-
-.dark-theme .chat-header-right .MuiIconButton-root:hover {
     color: #ddd;
 }
 

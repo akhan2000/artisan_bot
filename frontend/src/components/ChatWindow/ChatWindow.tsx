@@ -87,6 +87,38 @@ const ChatWindow: React.FC = () => {
     }
   };
 
+//   const handleSend = async () => {
+//     const trimmedInput = input.trim();
+//     if (trimmedInput) {
+//         // Create a temporary message object
+//         const tempMessage: ChatMessage = {
+//             id: Date.now(), // Temporary ID
+//             role: "user",
+//             content: trimmedInput,
+//             timestamp: new Date().toISOString(),
+//             user_id: currentUser.id, // Ensure you have access to current user's ID
+//             context: context,
+//             isEditing: false,
+//         };
+
+//         // Optimistically add the message to the UI
+//         setMessages(prevMessages => [...prevMessages, tempMessage]);
+//         setInput("");
+
+//         try {
+//             const newMessage = await sendMessage(trimmedInput, "user", context);
+//             // Replace the temporary message with the one from the server
+//             setMessages(prevMessages => prevMessages.map(msg => msg.id === tempMessage.id ? newMessage : msg));
+//         } catch (error) {
+//             console.error("Failed to send message:", error);
+//             // Optionally, remove the temporary message or notify the user
+//             setMessages(prevMessages => prevMessages.filter(msg => msg.id !== tempMessage.id));
+//             // Display error message
+//             setError("Failed to send message. Please try again.");
+//         }
+//     }
+// };
+
   const handleEdit = (id: number) => {
     setEditingMessageId(id);
     setMessages(prevMessages =>
@@ -319,7 +351,7 @@ const ChatWindow: React.FC = () => {
               }
             }}
           />
-          
+
         </div>
         <div className="input-row">
           <span className="context-label">Context</span>

@@ -1,13 +1,15 @@
 // src/components/Register.tsx
 
-import React, { useState } from 'react';
+import React, { useState,useContext  } from 'react';
 import { register } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { TextField, Button, Container, Typography, Box } from '@mui/material';
+import { AuthContext } from '../context/AuthContext';
 import './Register.css';  // Ensure this CSS file exists and is correctly styled
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,9 +18,18 @@ const Register: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleRegister = async () => {
+    // UI Validation for Email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
     try {
-      await register(username, password, email, firstName, lastName);
-      navigate('/login'); // Redirect to login page after successful registration
+      const response = await register(username, password, email, firstName, lastName);
+      const { access_token } = response;
+      login(access_token); // Store token in context and localStorage
+      navigate('/'); // Redirect directly to the chatbot
     } catch (error: any) {
       console.error('Error during registration:', error);
       setError(error.response?.data?.detail || 'Registration failed');

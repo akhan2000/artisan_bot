@@ -1,6 +1,6 @@
 # app/models/message.py
 
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean, Index
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from ..database import Base
@@ -14,5 +14,12 @@ class Message(Base):
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
     user_id = Column(Integer, ForeignKey('users.id'))
     context = Column(String, default="Onboarding")  # New field
+    is_edited = Column(Boolean, default=False)  # New field
+    is_deleted = Column(Boolean, default=False)  # For delete functionality
 
     user = relationship('User', back_populates='messages')
+
+# index optimizes queries filtering by both user_id and context
+    __table_args__ = (
+        Index('idx_user_context', 'user_id', 'context'),
+    )

@@ -46,7 +46,7 @@ def generate_response(user_input: str, context: str, db: Session, user_id: int, 
     try:
         # Fetch recent chat history specific to the context (e.g., Onboarding, Support, Marketing)
         recent_messages = get_recent_messages_by_context(db, user_id, context=context, limit=history_limit)
-        user_history = " ".join([msg.content for msg in recent_messages])
+        user_history = " ".join([msg.content for msg in recent_messages if not msg.is_edited and not msg.is_deleted])
 
         # Define enhanced system prompts based on context with rich company and product details
         system_prompts = {
@@ -169,7 +169,11 @@ def get_messages(db: Session, user_id: int, skip: int = 0, limit: int = 10, cont
     """
     Fetch a list of messages for a user with optional context filtering.
     """
-    query = db.query(models.Message).filter(models.Message.user_id == user_id)
+    query = db.query(models.Message).filter(
+        models.Message.user_id == user_id,
+        models.Message.is_edited==False,
+        models.Message.is_deleted==False
+        )
     if context:
         query = query.filter(models.Message.context == context)
     return query.order_by(models.Message.timestamp.asc()).offset(skip).limit(limit).all()
@@ -205,7 +209,21 @@ def delete_message(db: Session, message_id: int, user_id: int) -> Optional[model
 def update_message(db: Session, message_id: int, new_content: str, user_id: int) -> Optional[models.Message]:
     message = db.query(models.Message).filter(models.Message.id == message_id, models.Message.user_id == user_id).first()
     if message:
-        message.content = new_content
+        message.is_edited = True
         db.commit()
         db.refresh(message)
-    return message
+
+        edited_message = models.Message(
+            role=message.role,
+            content=new_content,
+            user_id=user_id,
+            context=message.context,
+            is_edited=False,  # New message is not edited
+        )
+        db.add(edited_message)
+        db.commit()
+        db.refresh(edited_message)
+
+        return edited_message
+    return None 
+

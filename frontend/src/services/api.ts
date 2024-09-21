@@ -135,7 +135,10 @@ export async function updateMessage(messageId: number, newContent: string): Prom
         throw error; // Propagate error to be handled by the caller
     }
 }
-
+export interface Token {
+    access_token: string;
+    token_type: string;
+}
 /**
  * Authenticates a user with the backend API using their credentials.
  *
@@ -172,9 +175,9 @@ export async function login(username: string, password: string): Promise<{ acces
  *
  * @throws Will throw an error if the registration fails.
  */
-export async function register(username: string, password: string, email: string, firstName: string, lastName: string): Promise<Message> {
+export async function register(username: string, password: string, email: string, firstName: string, lastName: string): Promise<Token> {
     try {
-        const response = await axios.post<Message>(`${API_URL}/register`, {
+        const response = await axios.post<Token>(`${API_URL}/register`, {
             username,
             password,
             email,
