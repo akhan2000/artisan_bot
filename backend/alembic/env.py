@@ -1,20 +1,32 @@
 # alembic/env.py
 import os
+import os
 import sys
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 from alembic import context
+from dotenv import load_dotenv
 
-# Adjust the path
+# Load environment variables from .env
+load_dotenv()
+
+# Add the parent directory to the path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-# Import Base and models
+# Import models
 from app.database import Base
 from app.models import user, message
 
+# Config
 config = context.config
-fileConfig(config.config_file_name)
+
+# Set SQLAlchemy URL
 config.set_main_option('sqlalchemy.url', os.environ.get('DATABASE_URL'))
+
+# Setup logging
+fileConfig(config.config_file_name)
+
+# Set target metadata
 target_metadata = Base.metadata
 
 # add your model's MetaData object here
