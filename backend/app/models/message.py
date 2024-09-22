@@ -3,7 +3,8 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean, Index
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from ..database import Base
+from app.database import Base
+
 
 class Message(Base):
     __tablename__ = "messages"
@@ -16,7 +17,7 @@ class Message(Base):
     context = Column(String, default="Onboarding")  # New field
     is_edited = Column(Boolean, default=False)  # New field
     is_deleted = Column(Boolean, default=False)  # For delete functionality
-    
+
     parent_id = Column(Integer, ForeignKey('messages.id'), nullable=True)  # New field
     parent_message = relationship('Message', remote_side=[id], backref='responses')
     user = relationship('User', back_populates='messages')
