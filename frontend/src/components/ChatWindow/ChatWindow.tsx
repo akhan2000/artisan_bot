@@ -1,3 +1,5 @@
+// src/components/ChatWindow/ChatWindow.tsx
+
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { 
   Avatar, 
@@ -14,6 +16,8 @@ import {
   Select, 
   SelectChangeEvent,
   Tooltip,
+  Menu,
+  Typography
 } from "@mui/material";
 import SendIcon from '@mui/icons-material/Send';
 import EditIcon from '@mui/icons-material/Edit';
@@ -21,6 +25,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import SettingsIcon from '@mui/icons-material/Settings';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import LogoutIcon from '@mui/icons-material/Logout';
+import FeedbackIcon from '@mui/icons-material/Feedback';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import { parse } from "marked";
 import { sendMessage, deleteMessage, updateMessage, getMessages, clickAction, Message as APIMessage } from "../../services/api";
 import "./ChatWindow.css";
@@ -30,38 +36,75 @@ import elijahAvatar from '../../assets/elijah.png';
 import lucasAvatar from '../../assets/lucas.png';  
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
+import { User } from '../../types/User';
 
 interface ChatMessage extends APIMessage {
   isEditing?: boolean;
+  is_edited: boolean;
+  is_deleted: boolean;
 }
 
 const ChatWindow: React.FC = () => {
   const defaultMessage: ChatMessage[] = [];
   
-  const { logout } = useContext(AuthContext); 
+  const { logout, user } = useContext(AuthContext); 
   const [messages, setMessages] = useState<ChatMessage[]>(defaultMessage);
   const [input, setInput] = useState<string>("");
   const [editingMessageId, setEditingMessageId] = useState<number | null>(null);
+  const [isSending, setIsSending] = useState<boolean>(false);
   const [theme, setTheme] = useState("light");
   const [language, setLanguage] = useState("en");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [context, setContext] = useState("Onboarding");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const menuOpen = Boolean(anchorEl);
+  const [error, setError] = useState<string | null>(null);
+  
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
+  
   useEffect(() => {
     fetchMessages();
     scrollToBottom();
   }, [context]);
-
+  
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(null), 5000); // Clear after 5 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+  
+  const getUsernameFromToken = (token: string): string | null => {
+    try {
+      const payload = token.split('.')[1];
+      const decoded = atob(payload);
+      const parsed = JSON.parse(decoded);
+      return parsed.sub;
+    } catch (error) {
+      console.error("Failed to decode token:", error);
+      return null;
+    }
+  };
+  
+  const getUsername = (): string => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const username = getUsernameFromToken(token);
+      return username || 'User';
+    }
+    return 'User';
+  };
+  
+  const username = getUsername();
+  
   const fetchMessages = async () => {
     try {
       const fetchedMessages = await getMessages(0, 100, context); // Pass context
@@ -72,62 +115,78 @@ const ChatWindow: React.FC = () => {
       console.error("Failed to fetch messages:", error);
     }
   };
-
+  
+  // updated handleSend now fetching the updated messages after sending a message
+  // room for optimization by reducing the number of API calls to return both the user/assistant's response in a single call, but currently leaving as is for UX reasons
+  // for being able to see sent message immediately in the UI
   const handleSend = async () => {
+    if (isSending) return; // Prevent multiple sends
+    setIsSending(true);
     const trimmedInput = input.trim();
     if (trimmedInput) {
+      // Create a temporary message object
+      const tempMessage: ChatMessage = {
+        id: Date.now(), // Temporary ID
+        role: "user",
+        content: trimmedInput,
+        timestamp: new Date().toISOString(),
+        user_id: user ? user.id : 0,
+        context: context,
+        isEditing: false,
+        is_edited: false,  
+        is_deleted: false
+      };
+  
+      // Optimistically add the message to the UI
+      setMessages(prevMessages => [...prevMessages, tempMessage]);
+      setInput("");
+  
       try {
         const newMessage = await sendMessage(trimmedInput, "user", context);
-        setMessages(prevMessages => [...prevMessages, { ...newMessage, isEditing: false }]);
-        setInput("");
+        // Replace the temporary message with the one from the server
+        setMessages(prevMessages =>
+          prevMessages.map(msg =>
+            msg.id === tempMessage.id ? { ...newMessage, isEditing: false } : msg
+          )
+        );
+        // Fetch messages to include assistant's response
         await fetchMessages();
       } catch (error) {
         console.error("Failed to send message:", error);
+        // Remove the temporary message
+        setMessages(prevMessages => prevMessages.filter(msg => msg.id !== tempMessage.id));
+        // Display error message
+        setError("Failed to send message. Please try again.");
+      } finally {
+        setIsSending(false); // Reset isSending regardless of success or failure
       }
+    } else {
+      setIsSending(false); // Reset isSending if input is empty
     }
   };
-
-//   const handleSend = async () => {
-//     const trimmedInput = input.trim();
-//     if (trimmedInput) {
-//         // Create a temporary message object
-//         const tempMessage: ChatMessage = {
-//             id: Date.now(), // Temporary ID
-//             role: "user",
-//             content: trimmedInput,
-//             timestamp: new Date().toISOString(),
-//             user_id: currentUser.id, // Ensure you have access to current user's ID
-//             context: context,
-//             isEditing: false,
-//         };
-
-//         // Optimistically add the message to the UI
-//         setMessages(prevMessages => [...prevMessages, tempMessage]);
-//         setInput("");
-
-//         try {
-//             const newMessage = await sendMessage(trimmedInput, "user", context);
-//             // Replace the temporary message with the one from the server
-//             setMessages(prevMessages => prevMessages.map(msg => msg.id === tempMessage.id ? newMessage : msg));
-//         } catch (error) {
-//             console.error("Failed to send message:", error);
-//             // Optionally, remove the temporary message or notify the user
-//             setMessages(prevMessages => prevMessages.filter(msg => msg.id !== tempMessage.id));
-//             // Display error message
-//             setError("Failed to send message. Please try again.");
-//         }
-//     }
-// };
-
-  const handleEdit = (id: number) => {
-    setEditingMessageId(id);
-    setMessages(prevMessages =>
-      prevMessages.map(message =>
-        message.id === id ? { ...message, isEditing: true } : message
-      )
+ 
+    
+    // Ensure only the most recent message can be edited
+    const userMessages = messages.filter(
+      msg => msg.role === 'user' && !msg.is_deleted && !msg.is_edited
     );
+    const mostRecentMessage = userMessages[userMessages.length - 1];
+    const mostRecentMessageId = mostRecentMessage ? mostRecentMessage.id : null;
+    
+   const handleEdit = (id: number) => {
+    if (mostRecentMessageId && mostRecentMessageId === id) {
+      setEditingMessageId(id);
+      setMessages(prevMessages =>
+        prevMessages.map(message =>
+          message.id === id ? { ...message, isEditing: true } : message
+        )
+      );
+    } else {
+      setError("Only the most recent message can be edited.");
+    }
   };
-
+  
+  
   const handleAction = async (actionType: string) => {
     try {
       const response = await clickAction(actionType, context);
@@ -138,7 +197,7 @@ const ChatWindow: React.FC = () => {
       console.error("Error handling action:", error);
     }
   };
-
+  
   const handleContentChange = (id: number, newContent: string) => {
     setMessages(prevMessages =>
       prevMessages.map(message =>
@@ -146,7 +205,7 @@ const ChatWindow: React.FC = () => {
       )
     );
   };
-
+  
   const saveEdit = async (id: number) => {
     const message = messages.find(msg => msg.id === id);
     if (message) {
@@ -161,49 +220,69 @@ const ChatWindow: React.FC = () => {
             )
           );
           setEditingMessageId(null);
+          // Refresh messages to reflect edited state
+          await fetchMessages();
         }
       } catch (error) {
         console.error("Failed to update message:", error);
+        setError("Failed to update message. Please try again.");
       }
     }
   };
-
+  
   const handleDelete = async (id: number) => {
     try {
       await deleteMessage(id);
-      setMessages(prevMessages =>
-        prevMessages.filter(message => message.id !== id)
-      );
+      // Refresh messages to reflect deletion of both user message and assistant response
+      await fetchMessages();
       setEditingMessageId(null);
-    } catch (error) {
-      console.error("Failed to delete message:", error);
-    }
-  };
-
+  } catch (error) {
+    console.error("Failed to delete message:", error);
+    setError("Failed to delete message. Please try again.");
+  }
+};
+  
   const toggleSettings = () => {
     setSettingsOpen(!settingsOpen);
   };
-
+  
   const handleThemeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTheme(event.target.checked ? "dark" : "light");
-    document.body.className = event.target.checked ? "dark-theme" : "light-theme";
+    const newTheme = event.target.checked ? "dark" : "light";
+    setTheme(newTheme);
+    document.body.className = newTheme === "dark" ? "dark-theme" : "light-theme";
   };
-
+  
   const handleLanguageChange = (event: SelectChangeEvent) => {
     setLanguage(event.target.value as string);
   };
-
+  
   const handleContextChange = (event: SelectChangeEvent) => {
     const newContext = event.target.value as string;
     setContext(newContext);
     fetchMessages();
   };
-
-  const handleLogout = () => {
-    logout(); 
-    navigate('/login'); 
+  
+  const handleLogoutClick = () => {
+    handleCloseMenu();
+    logout();
   };
-
+  
+  const handleFeedbackClick = () => {
+    window.open('https://www.artisan.co/contact-us', '_blank');
+  };
+  
+  const handleSupportClick = () => {
+    window.open('https://support.artisan.co/en/', '_blank');
+  };
+  
+  const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
+  
   const handleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen();
@@ -213,14 +292,14 @@ const ChatWindow: React.FC = () => {
       }
     }
   };
-
+  
   // Define available actions based on context
   const actionTypesByContext: Record<string, string[]> = {
     "Onboarding": ["create_lead", "schedule_follow_up", "generate_email_template"],
     "Support": ["create_lead", "schedule_follow_up", "generate_email_template"],
     "Marketing": ["create_lead", "schedule_follow_up", "generate_email_template"],
   };
-
+  
   // Helper function to get readable labels
   const getActionLabel = (actionType: string): string => {
     switch(actionType) {
@@ -234,7 +313,7 @@ const ChatWindow: React.FC = () => {
         return "Action";
     }
   };
-
+  
   // Render Action Buttons
   const renderActionButtons = () => {
     const actions = actionTypesByContext[context] || [];
@@ -246,7 +325,7 @@ const ChatWindow: React.FC = () => {
               variant="contained" 
               color="primary" 
               onClick={() => handleAction(action)}
-              style={{ margin: '4px', minWidth: '140px' }}
+              className="action-button"
             >
               {getActionLabel(action)}
             </Button>
@@ -255,16 +334,54 @@ const ChatWindow: React.FC = () => {
       </div>
     );
   };
-
+  
   return (
     <div className={`chat-window ${theme}`}>
       <div className="chat-header">
         <IconButton onClick={handleFullscreen} className="fullscreen-icon">
           <FullscreenIcon />
         </IconButton>
-        <IconButton onClick={handleLogout} className="logout-icon">
-          <LogoutIcon />
+        <IconButton onClick={handleAvatarClick} className="user-avatar-button">
+          <Avatar src={userAvatar} alt="User Avatar" />
         </IconButton>
+        <Menu
+          anchorEl={anchorEl}
+          open={menuOpen}
+          onClose={handleCloseMenu}
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+        >
+         <MenuItem disabled>
+            <Typography variant="subtitle1">Hello, {username}</Typography>
+          </MenuItem>
+          {/* <MenuItem onClick={handleProfileClick}>
+            <Tooltip title="Profile">
+              <Button startIcon={<ProfileIcon />}>Profile</Button>
+            </Tooltip>
+          </MenuItem> */}
+          <MenuItem onClick={handleFeedbackClick}>
+            <Tooltip title="Give Feedback">
+              <Button startIcon={<FeedbackIcon />}>Feedback</Button>
+            </Tooltip>
+          </MenuItem>
+          <MenuItem onClick={handleSupportClick}>
+            <Tooltip title="Get Support">
+              <Button startIcon={<SupportAgentIcon />}>Support</Button>
+            </Tooltip>
+          </MenuItem>
+          <MenuItem onClick={handleLogoutClick}>
+            <Tooltip title="Logout">
+              <Button startIcon={<LogoutIcon />}>Logout</Button>
+            </Tooltip>
+          </MenuItem>
+        </Menu>
+        
         <div className="chat-header-left">
           <Avatar src={context === "Onboarding" ? avatarImage : context === "Support" ? elijahAvatar : lucasAvatar} alt="Chatbot Avatar" />
           <div className="chatbot-info">
@@ -273,9 +390,11 @@ const ChatWindow: React.FC = () => {
           </div>
         </div>
       </div>
-
+      
       <div className="messages-container">
-        {messages.map((message) => (
+        {messages
+        .filter(msg => !msg.is_deleted)
+        .map((message) => (
           <div
             key={message.id}
             className={`message-container ${message.role === "user" ? "user-message" : "assistant-message"}`}
@@ -315,15 +434,17 @@ const ChatWindow: React.FC = () => {
               ></div>
             )}
             {message.role === "user" && !message.isEditing && (
-              <div className="message-actions">
-                <IconButton onClick={() => handleEdit(message.id)} size="small">
-                  <EditIcon fontSize="small" />
-                </IconButton>
-                <IconButton onClick={() => handleDelete(message.id)} size="small">
-                  <DeleteIcon fontSize="small" />
-                </IconButton>
-              </div>
-            )}
+  <div className="message-actions">
+    {message.id === mostRecentMessageId && (
+      <IconButton onClick={() => handleEdit(message.id)} size="small">
+        <EditIcon fontSize="small" />
+      </IconButton>
+    )}
+    <IconButton onClick={() => handleDelete(message.id)} size="small">
+      <DeleteIcon fontSize="small" />
+    </IconButton>
+  </div>
+)}
           </div>
         ))}
         <div ref={messagesEndRef} />
@@ -344,6 +465,7 @@ const ChatWindow: React.FC = () => {
             size="small"
             multiline
             maxRows={4} // Limit the number of visible rows
+            disabled={isSending}
             onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                     handleSend();
@@ -351,7 +473,6 @@ const ChatWindow: React.FC = () => {
               }
             }}
           />
-
         </div>
         <div className="input-row">
           <span className="context-label">Context</span>
@@ -369,9 +490,9 @@ const ChatWindow: React.FC = () => {
           <IconButton onClick={toggleSettings}>
             <SettingsIcon />
           </IconButton>
-          <IconButton color="primary" onClick={handleSend}>
-            <SendIcon />
-          </IconButton>
+          <IconButton color="primary" onClick={handleSend} disabled={isSending}>
+  <SendIcon />
+</IconButton>
         </div>
       </div>
 
@@ -398,8 +519,15 @@ const ChatWindow: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Error Message */}
+      {error && (
+        <div className="error-message">
+          <Typography color="error">{error}</Typography>
+        </div>
+      )}
     </div>
   );
 };
-
-export default ChatWindow;
+  
+  export default ChatWindow;

@@ -16,7 +16,7 @@ const Login: React.FC = () => {
     try {
       const response = await loginApi(username, password);
       const { access_token } = response;
-      login(access_token); // Update context with token
+      await login(access_token); // Update context with token and fetch user data
       navigate('/'); // Redirect to home page after login
     } catch (error: any) {
       console.error('Error during login:', error);

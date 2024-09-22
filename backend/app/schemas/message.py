@@ -22,6 +22,7 @@ class Message(MessageBase):
     id: int
     timestamp: datetime
     user_id: int
+    parent_id: Optional[int] = None
     is_edited: bool
     is_deleted: bool
 

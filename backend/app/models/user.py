@@ -1,3 +1,5 @@
+# app/models/user.py
+
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from ..database import Base
@@ -12,4 +14,4 @@ class User(Base):
     first_name = Column(String, nullable=True)
     last_name = Column(String, nullable=True)
 
-    messages = relationship('Message', back_populates='user')
+    messages = relationship('Message', back_populates='user', cascade="all, delete-orphan")

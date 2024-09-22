@@ -1,10 +1,12 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import and_
 from openai import OpenAI
 import os
 from .. import models, schemas
 from typing import Optional
 from dotenv import load_dotenv
 
+MessageModel = models.Message
 # Load environment variables from .env file
 load_dotenv()
 
@@ -15,7 +17,7 @@ if not OPENAI_API_KEY:
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-def create_message(db: Session, message: schemas.MessageCreate, user_id: int):
+def create_message(db: Session, message: schemas.MessageCreate, user_id: int, parent_id: Optional[int] = None) :
     # Create and store the user message
     db_message = models.Message(**message.dict(), user_id=user_id)
     db.add(db_message)
@@ -31,13 +33,26 @@ def create_message(db: Session, message: schemas.MessageCreate, user_id: int):
         role="assistant",
         content=assistant_response,
         user_id=user_id,
-        context=context
+        context=context,
+        parent_id=db_message.id
     )
     db.add(db_assistant_message)
     db.commit()
     db.refresh(db_assistant_message)
 
+    # invalidate_cache(user_id, message.context)
     return db_message
+
+
+# def invalidate_cache(user_id: int, context: str):
+#     pattern = f"messages:{user_id}:{context}:*"
+#     keys = redis_client.keys(pattern)
+#     if keys:
+#         redis_client.delete(*keys)
+
+# Messages are ordered by timestamp descending (most recent first) when fetching.
+# Only messages with is_edited = False and is_deleted = False are included.
+# The LLM receives the system_prompt and the latest user_input.
 
 def generate_response(user_input: str, context: str, db: Session, user_id: int, history_limit: int = 5) -> str:
     """
@@ -46,6 +61,8 @@ def generate_response(user_input: str, context: str, db: Session, user_id: int, 
     try:
         # Fetch recent chat history specific to the context (e.g., Onboarding, Support, Marketing)
         recent_messages = get_recent_messages_by_context(db, user_id, context=context, limit=history_limit)
+        # Reversing the list to have messages in chronological order (oldest first)
+        recent_messages = list(reversed(recent_messages))
         user_history = " ".join([msg.content for msg in recent_messages if not msg.is_edited and not msg.is_deleted])
 
         # Define enhanced system prompts based on context with rich company and product details
@@ -73,10 +90,26 @@ def generate_response(user_input: str, context: str, db: Session, user_id: int, 
   
         system_prompt = system_prompts.get(context, "You are an assistant. How can I assist you today?")
 
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_input}
-        ]
+        # Build the messages list
+        messages = [{"role": "system", "content": system_prompt}]
+
+        # Include conversation history
+        for msg in recent_messages:
+            if not msg.is_edited and not msg.is_deleted:
+                messages.append({"role": msg.role, "content": msg.content})
+
+        # Add the latest user input
+        messages.append({"role": "user", "content": user_input})
+
+        # Debug: Print messages sent to the LLM
+        print("Messages sent to LLM:")
+        for message in messages:
+            print(f"{message['role']}: {message['content']}")
+
+        # messages = [
+        #     {"role": "system", "content": system_prompt},
+        #     {"role": "user", "content": user_input}
+        # ]
 
         response = client.chat.completions.create(
             model="gpt-4",  
@@ -160,15 +193,39 @@ def get_message(db: Session, message_id: int, user_id: int) -> Optional[models.M
 
 
 def get_recent_messages_by_context(db: Session, user_id: int, context: str, limit: int = 5) -> list[models.Message]:
-    """
-    Fetch the most recent messages from the database for a given user and context.
-    """
-    return db.query(models.Message).filter(models.Message.user_id == user_id, models.Message.context == context).order_by(models.Message.timestamp.desc()).limit(limit).all()
+    return db.query(models.Message).filter(
+        models.Message.user_id == user_id,
+        models.Message.context == context,
+        models.Message.is_deleted == False,
+        models.Message.is_edited == False
+    ).order_by(models.Message.timestamp.desc()).limit(limit).all()
 
 def get_messages(db: Session, user_id: int, skip: int = 0, limit: int = 10, context: Optional[str] = None) -> list[models.Message]:
     """
     Fetch a list of messages for a user with optional context filtering.
     """
+    #  cache_key = f"messages:{user_id}:{context}:{skip}:{limit}"
+    # cached_messages = redis_client.get(cache_key)
+    # if cached_messages:
+    #     messages_data = json.loads(cached_messages)
+    #     messages = [models.Message(**msg) for msg in messages_data]
+    #     return messages
+
+    # # If not cached, fetch from DB
+    # query = db.query(models.Message).filter(
+    #     models.Message.user_id == user_id,
+    #     models.Message.is_deleted == False
+    # )
+    # if context:
+    #     query = query.filter(models.Message.context == context)
+    # messages = query.order_by(models.Message.timestamp.asc()).offset(skip).limit(limit).all()
+
+    # # Cache the result
+    # messages_data = [msg.__dict__ for msg in messages]
+    # redis_client.setex(cache_key, 300, json.dumps(messages_data))  # Cache for 5 minutes
+
+    # return messages
+
     query = db.query(models.Message).filter(
         models.Message.user_id == user_id,
         models.Message.is_edited==False,
@@ -200,30 +257,81 @@ def fallback_response(user_input: str, context: str) -> str:
     
 
 def delete_message(db: Session, message_id: int, user_id: int) -> Optional[models.Message]:
-    message = db.query(models.Message).filter(models.Message.id == message_id, models.Message.user_id == user_id).first()
-    if message:
-        db.delete(message)
-        db.commit()
+    # Fetch the user message
+    message = db.query(models.Message).filter(
+        models.Message.id == message_id,
+        models.Message.user_id == user_id,
+        models.Message.role == "user",
+        models.Message.is_deleted == False
+    ).first()
+
+    if not message:
+        return None
+
+    # Mark the user message as deleted
+    message.is_deleted = True
+
+    # Fetch and mark the assistant's response as deleted
+    assistant_response = db.query(models.Message).filter(
+        models.Message.parent_id == message.id,
+        models.Message.role == "assistant",
+        models.Message.is_deleted == False
+    ).first()
+
+    if assistant_response:
+        assistant_response.is_deleted = True
+
+    db.commit()
     return message
 
-def update_message(db: Session, message_id: int, new_content: str, user_id: int) -> Optional[models.Message]:
-    message = db.query(models.Message).filter(models.Message.id == message_id, models.Message.user_id == user_id).first()
-    if message:
-        message.is_edited = True
-        db.commit()
-        db.refresh(message)
+def update_message(db: Session, message_id: int, new_content: str, user_id: int) -> Optional[MessageModel]:
+    # Fetch the original message
+    message = db.query(MessageModel).filter(
+        MessageModel.user_id == user_id,
+        MessageModel.role == "user",
+        MessageModel.is_deleted == False,
+        MessageModel.is_edited == False
+    ).order_by(MessageModel.timestamp.desc()).first()
 
-        edited_message = models.Message(
-            role=message.role,
-            content=new_content,
-            user_id=user_id,
-            context=message.context,
-            is_edited=False,  # New message is not edited
+    if not message or message.id != message_id:
+        return None
+
+    # Mark original message and its assistant response as edited
+    message.is_edited = True
+    assistant_response = db.query(MessageModel).filter(
+        and_(
+            MessageModel.parent_id == message.id,
+            MessageModel.role == "assistant"
         )
-        db.add(edited_message)
-        db.commit()
-        db.refresh(edited_message)
+    ).first()
+    if assistant_response:
+        assistant_response.is_edited = True
 
-        return edited_message
-    return None 
+    db.commit()
 
+    # Create a new edited message
+    edited_message = MessageModel(
+        role="user",
+        content=new_content,
+        user_id=user_id,
+        context=message.context,
+        parent_id=None,  # This will be linked to the new assistant response
+    )
+    db.add(edited_message)
+    db.commit()
+    db.refresh(edited_message)
+
+    # Generate new assistant response
+    assistant_content = generate_response(new_content, message.context, db, user_id)
+    assistant_response_new = MessageModel(
+        role="assistant",
+        content=assistant_content,
+        user_id=user_id,
+        context=message.context,
+        parent_id=edited_message.id
+    )
+    db.add(assistant_response_new)
+    db.commit()
+    db.refresh(assistant_response_new)
+
+    return edited_message

@@ -3,6 +3,7 @@
 
 import axios from 'axios';
 
+
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 
@@ -29,6 +30,8 @@ export interface Message {
     timestamp: string;
     user_id: number;
     context?: string; // Optional context to categorize or group messages
+    is_edited: boolean;
+    is_deleted: boolean;
 }
 
 /**
@@ -135,6 +138,19 @@ export async function updateMessage(messageId: number, newContent: string): Prom
         throw error; // Propagate error to be handled by the caller
     }
 }
+
+/**
+ * Interface representing the structure of a User object.
+ */
+export interface User {
+    id: number;
+    username: string;
+    email: string;
+    firstName?: string;
+    lastName?: string;
+    // Add other user-related properties as needed
+}
+
 export interface Token {
     access_token: string;
     token_type: string;
@@ -175,6 +191,9 @@ export async function login(username: string, password: string): Promise<{ acces
  *
  * @throws Will throw an error if the registration fails.
  */
+/**
+ * Registers a new user with the backend API.
+ */
 export async function register(username: string, password: string, email: string, firstName: string, lastName: string): Promise<Token> {
     try {
         const response = await axios.post<Token>(`${API_URL}/register`, {
@@ -186,7 +205,7 @@ export async function register(username: string, password: string, email: string
         }, {
             headers: {
                 "Content-Type": "application/json",
-                ...getAuthHeaders(), // Attach auth headers if available
+                // No need to attach auth headers for registration
             },
         });
         return response.data;
@@ -196,6 +215,42 @@ export async function register(username: string, password: string, email: string
     }
 }
 
+// export async function register(username: string, password: string, email: string, firstName: string, lastName: string): Promise<Token> {
+//     try {
+//         const response = await axios.post<Token>(`${API_URL}/register`, {
+//             username,
+//             password,
+//             email,
+//             first_name: firstName,
+//             last_name: lastName,
+//         }, {
+//             headers: {
+//                 "Content-Type": "application/json",
+//                 ...getAuthHeaders(), // Attach auth headers if available
+//             },
+//         });
+//         return response.data;
+//     } catch (error) {
+//         console.error("Error during registration:", error);
+//         throw error; // Propagate error to be handled by the caller
+//     }
+// }
+/**
+ * Retrieves the current authenticated user's data.
+ */
+export async function getCurrentUser(): Promise<User> {
+    try {
+        const response = await axios.get<User>(`${API_URL}/users/me`, {
+            headers: {
+                ...getAuthHeaders(),
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching current user:", error);
+        throw error;
+    }
+}
 
 /**
  * Logs out the current user by removing the authentication token from localStorage.

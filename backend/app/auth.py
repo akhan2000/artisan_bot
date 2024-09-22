@@ -9,10 +9,11 @@ from .schemas.user import UserCreate, UserRead
 import os
 from passlib.context import CryptContext
 from typing import Optional
+from .schemas.token import Token
 
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
@@ -50,7 +51,11 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         raise credentials_exception
     return UserRead.from_orm(user)
 
-@router.post("/register", response_model=UserRead)
+@router.get("/users/me", response_model=UserRead)
+def read_users_me(current_user: User = Depends(get_current_user)):
+    return current_user
+
+@router.post("/register", response_model=Token)
 def register(user: UserCreate, db: Session = Depends(get_db)):
     existing_user = db.query(User).filter(
         (User.username == user.username) | (User.email == user.email)
@@ -68,7 +73,9 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    return db_user
+    access_token = create_access_token(data={"sub": db_user.username})
+    
+    return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/login")
 def login(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()):

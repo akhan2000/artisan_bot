@@ -1,3 +1,5 @@
+/* src/components/ChatWindow/ChatWindow.css */
+
 /* Chatbox Container */
 .chat-window {
     width: 90vw; /* Changed from fixed width to 90% of viewport width */
@@ -17,41 +19,29 @@
     transform: translate(-50%, -50%);
 }
 
-/* Alternatively, using responsive units */
-/*
-.chat-window {
-    width: 50vw; 
-    height: 70vh; 
-    max-height: 80vh;
-    ... other styles
-}
-*/
-
 /* Chat Header */
 .chat-header {
     display: flex;
-    flex-direction: column; /* Stack elements vertically */
     justify-content: center;
-    align-items: center; /* Center elements horizontally */
+    align-items: center;
     padding: 16px;
     border-bottom: 1px solid #e0e0e0;
     background-color: #f5f5f5;
     transition: background-color 0.3s ease;
-    text-align: center; /* Center the text */
-    flex: 0 0 auto; /* Prevents the header from stretching */
-}
-
-.chat-header .fullscreen-icon,
-.chat-header .logout-icon {
-    position: absolute;
-    top: 8px;
+    text-align: center;
+    flex: 0 0 auto;
+    position: relative; /* To position absolute elements inside */
 }
 
 .chat-header .fullscreen-icon {
+    position: absolute;
+    top: 8px;
     left: 8px;
 }
 
-.chat-header .logout-icon {
+.user-avatar-button {
+    position: absolute;
+    top: 8px;
     right: 8px;
 }
 
@@ -100,7 +90,11 @@
     order: 1;
     background-color: #7b61ff;
     color: white;
-    border-radius: 0; /* Removed rounding */
+    border-radius: 20px 20px 0px 20px; /* Rounded corners for bubble effect */
+    padding: 10px 16px;
+    margin: 5px 0;
+    max-width: 60%;
+    word-wrap: break-word;
 }
 
 /* Assistant Messages */
@@ -118,7 +112,11 @@
     order: 2;
     background-color: #e9ecef;
     color: #333;
-    border-radius: 0; /* Removed rounding */
+    border-radius: 20px 20px 20px 0px; /* Rounded corners for bubble effect */
+    padding: 10px 16px;
+    margin: 5px 0;
+    max-width: 60%;
+    word-wrap: break-word;
 }
 
 /* General Message Container */
@@ -129,15 +127,13 @@
 }
 
 .message {
-    max-width: 60%;
-    padding: 12px;
-    line-height: 1.4;
-    border-radius: 0; /* Ensures no rounding */
+    /* Already styled above as bubble */
 }
 
+/* Adjust avatar sizes if needed */
 .message-avatar {
-    width: 40px; /* Optional: Adjust size as needed */
-    height: 40px;
+    width: 32px; /* Reduced size for better alignment */
+    height: 32px;
     border-radius: 50%;
 }
 
@@ -174,26 +170,17 @@
     justify-content: space-between;
 }
 
-input[type="text"] {
-    flex-grow: 1;
-    border-radius: 0; /* Removed rounding */
-    padding: 12px;
-    border: 1px solid #e0e0e0;
-    background-color: #fff;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
+.input-row .context-label {
+    margin-right: 8px;
+    font-size: 0.875rem;
+    color: #333;
 }
 
 .context-select {
     flex: 1;
     margin-left: 8px;
     max-width: 150px;
-    border-radius: 0; /* Removed rounding */
-}
-
-.context-label {
-    margin-right: 8px;
-    font-size: 0.875rem;
-    color: #333;
+    border-radius: 0; /* Ensures square edges */
 }
 
 .message-actions {
@@ -202,6 +189,7 @@ input[type="text"] {
     gap: 4px;
 }
 
+/* Action Buttons Section */
 .action-buttons {
     display: flex;
     justify-content: center;
@@ -211,16 +199,22 @@ input[type="text"] {
     border-top: 1px solid #e0e0e0;
 }
 
-.action-buttons Button {
+.action-button {
     text-transform: none;
     margin: 4px;
     min-width: 140px;
+    background-color: #7b61ff; /* Purple color */
+    color: white;
+}
+
+.action-button:hover {
+    background-color: #6c63ff; /* Slightly darker purple on hover */
+    color: white;
 }
 
 /* Hover Effects */
 .action-buttons Button:hover {
-    background-color: #6c63ff;
-    color: #fff;
+    /* Already handled by .action-button:hover */
 }
 
 /* Responsive Design */
@@ -238,7 +232,7 @@ input[type="text"] {
         align-items: stretch;
     }
 
-    .action-buttons Button {
+    .action-button {
         width: 100%;
         margin: 4px 0;
     }
@@ -282,12 +276,13 @@ textarea,
 }
 
 .dark-theme .message-container.user-message .message {
-    background-color: #5a4fcc;
+    background-color: #7b61ff; /* Purple color in dark mode */
+    color: white;
 }
 
 .dark-theme .message-container.assistant-message .message {
-    background-color: #444;
-    color: #ccc;
+    background-color: #555; /* Darker assistant messages */
+    color: #fff; /* White text for readability */
 }
 
 .dark-theme input[type="text"] {
@@ -310,12 +305,12 @@ textarea,
 
 .dark-theme .context-select {
     background-color: #555;
-    color: #eee;
+    color: #fff;
     border: 1px solid #777;
 }
 
 .dark-theme .context-select .MuiSelect-icon {
-    color: #eee;
+    color: #fff;
 }
 
 .dark-theme .context-select:hover {
@@ -331,14 +326,14 @@ textarea,
     color: #eee;
 }
 
-.dark-theme .action-buttons Button {
-    background-color: #6c63ff;
-    color: #fff;
+.dark-theme .action-button {
+    background-color: #7b61ff; /* Purple color in dark mode */
+    color: white;
 }
 
-.dark-theme .action-buttons Button:hover {
-    background-color: #5a4fcc;
-    color: #fff;
+.dark-theme .action-button:hover {
+    background-color: #6c63ff;
+    color: white;
 }
 
 .dark-theme .message-actions .MuiIconButton-root {
@@ -369,7 +364,8 @@ textarea,
 }
 
 .light-theme .message-container.user-message .message {
-    background-color: #7b61ff;
+    background-color: #7b61ff; /* Purple color in light mode */
+    color: white;
 }
 
 .light-theme .message-container.assistant-message .message {
@@ -390,3 +386,60 @@ textarea,
 .light-theme .message-avatar {
     filter: none;
 }
+
+.light-theme .context-select {
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #e0e0e0;
+}
+
+.light-theme .context-select .MuiSelect-icon {
+    color: #333;
+}
+
+.light-theme .context-select:hover {
+    background-color: #f0f0f0;
+}
+
+.light-theme .context-select:focus {
+    background-color: #f0f0f0;
+    border-color: #b0b0b0;
+}
+
+.light-theme .context-label {
+    color: #333;
+}
+
+.light-theme .action-button {
+    background-color: #7b61ff; /* Purple color in light mode */
+    color: white;
+}
+
+.light-theme .action-button:hover {
+    background-color: #6c63ff;
+    color: white;
+}
+
+.light-theme .message-actions .MuiIconButton-root {
+    color: #333;
+}
+
+.light-theme .message-actions .MuiIconButton-root:hover {
+    color: #555;
+}
+
+/* Error Message */
+.error-message {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(255, 0, 0, 0.8);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    max-width: 80%;
+    text-align: center;
+  }

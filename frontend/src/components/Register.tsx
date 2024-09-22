@@ -1,7 +1,7 @@
 // src/components/Register.tsx
 
 import React, { useState,useContext  } from 'react';
-import { register } from '../services/api';
+import { register as registerApi } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { TextField, Button, Container, Typography, Box } from '@mui/material';
 import { AuthContext } from '../context/AuthContext';
@@ -26,13 +26,13 @@ const Register: React.FC = () => {
     }
 
     try {
-      const response = await register(username, password, email, firstName, lastName);
+      const response = await registerApi(username, password, email, firstName, lastName);
       const { access_token } = response;
       login(access_token); // Store token in context and localStorage
       navigate('/'); // Redirect directly to the chatbot
     } catch (error: any) {
       console.error('Error during registration:', error);
-      setError(error.response?.data?.detail || 'Registration failed');
+      setError(error.response?.data?.detail || 'Registration failed. Please try again.');
     }
   };
 
