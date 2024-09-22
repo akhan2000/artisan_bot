@@ -37,6 +37,7 @@ import lucasAvatar from '../../assets/lucas.png';
 import { AuthContext } from '../../context/AuthContext';
 
 
+
 interface ChatMessage extends APIMessage {
   isEditing?: boolean;
   is_edited: boolean;
@@ -369,43 +370,45 @@ const ChatWindow: React.FC = () => {
       </IconButton>
     </div>
 
-        <Menu
-          anchorEl={anchorEl}
-          open={menuOpen}
-          onClose={handleCloseMenu}
-          anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-        >
-         <MenuItem disabled>
-            <Typography variant="subtitle1">Hello, {username}</Typography>
-          </MenuItem>
-          {/* <MenuItem onClick={handleProfileClick}>
-            <Tooltip title="Profile">
-              <Button startIcon={<ProfileIcon />}>Profile</Button>
-            </Tooltip>
-          </MenuItem> */}
-          <MenuItem onClick={handleFeedbackClick}>
-            <Tooltip title="Give Feedback">
-              <Button startIcon={<FeedbackIcon />}>Feedback</Button>
-            </Tooltip>
-          </MenuItem>
-          <MenuItem onClick={handleSupportClick}>
-            <Tooltip title="Get Support">
-              <Button startIcon={<SupportAgentIcon />}>Support</Button>
-            </Tooltip>
-          </MenuItem>
-          <MenuItem onClick={handleLogoutClick}>
-            <Tooltip title="Logout">
-              <Button startIcon={<LogoutIcon />}>Logout</Button>
-            </Tooltip>
-          </MenuItem>
-        </Menu>
+        {/* Profile Dropdown Menu */}
+<Menu
+  anchorEl={anchorEl}
+  open={menuOpen}
+  onClose={handleCloseMenu}
+  anchorOrigin={{
+    vertical: 'top',
+    horizontal: 'right',
+  }}
+  transformOrigin={{
+    vertical: 'top',
+    horizontal: 'right',
+  }}
+  className="profile-dropdown" // Added className
+>
+  <MenuItem disabled className="profile-dropdown-item">
+    <Typography variant="subtitle1">Hello, {username}</Typography>
+  </MenuItem>
+  {/* Other MenuItems */}
+  <MenuItem onClick={handleFeedbackClick} className="profile-dropdown-item">
+    <Tooltip title="Give Feedback">
+      <Button startIcon={<FeedbackIcon />}>Feedback</Button>
+    </Tooltip>
+  </MenuItem>
+  <MenuItem onClick={handleSupportClick} className="profile-dropdown-item">
+    <Tooltip title="Get Support">
+      <Button startIcon={<SupportAgentIcon />}>Support</Button>
+    </Tooltip>
+  </MenuItem>
+  <MenuItem onClick={handleLogoutClick} className="profile-dropdown-item">
+    <Tooltip title="Logout">
+      <Button startIcon={<LogoutIcon />}>Logout</Button>
+    </Tooltip>
+  </MenuItem>
+</Menu>
+
+{/* Context Select Menu */}
+
+
       
       
       <div className="messages-container">
@@ -493,17 +496,21 @@ const ChatWindow: React.FC = () => {
         </div>
         <div className="input-row">
           <span className="context-label">Context</span>
-          <Select
+            <Select
             value={context}
             onChange={handleContextChange}
             className="context-select"
             variant="outlined"
             size="small"
+            MenuProps={{
+              classes: { paper: 'context-dropdown' }, // Added class to Menu
+            }}
           >
             <MenuItem value="Onboarding">Onboarding</MenuItem>
             <MenuItem value="Support">Support</MenuItem>
             <MenuItem value="Marketing">Marketing</MenuItem>
-          </Select>
+        </Select>
+
           
           <IconButton onClick={toggleSettings}>
             <SettingsIcon />

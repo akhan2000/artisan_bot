@@ -1,11 +1,67 @@
 /* src/components/ChatWindow/ChatWindow.css */
 
+/* General Reset for Inputs and Buttons */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+.select-input, /* Example class for select elements */
+.button, /* Example class for buttons */
+.MuiOutlinedInput-root, /* MUI Outlined Input */
+.MuiInputBase-input, /* MUI Input Base */
+.MuiOutlinedInput-notchedOutline, /* MUI Notched Outline */
+.register-button, /* Your Register Button */
+.chat-header .MuiIconButton-root, /* Icon Buttons in Chat Header */
+.message-actions .MuiIconButton-root /* Icon Buttons in Message Actions */
+{
+    border-radius: 0 !important; /* Removes all border-radius */
+}
+/* Dark Mode Styles for Settings Dialog */
+.dark-theme .MuiDialogTitle-root,
+.dark-theme .MuiDialogContent-root,
+.dark-theme .MuiDialogActions-root,
+.dark-theme .MuiFormControlLabel-label,
+.dark-theme .MuiButton-root,
+.dark-theme .MuiTypography-root,
+.dark-theme p {
+    color: #fff !important; /* Ensure text is white in dark mode */
+}
+
+.dark-theme .MuiInputBase-root {
+    color: #fff !important; /* Ensure input text is white */
+}
+
+.dark-theme .MuiSelect-select {
+    color: #fff !important; /* Ensure select option text is white */
+}
+
+.dark-theme .MuiInputLabel-root {
+    color: #ccc !important; /* Lighter color for input labels */
+}
+
+.dark-theme .MuiSwitch-track {
+    background-color: #555 !important; /* Darker switch track */
+}
+
+.dark-theme .MuiSwitch-colorPrimary.Mui-checked + .MuiSwitch-track {
+    background-color: #7b61ff !important; /* Purple when checked */
+}
+
+.dark-theme .MuiButton-containedPrimary {
+    background-color: #7b61ff !important; /* Ensure primary buttons are purple */
+    color: #fff !important; /* White text on buttons */
+}
+
+.dark-theme .MuiButton-containedPrimary:hover {
+    background-color: #6c63ff !important; /* Darker purple on hover */
+}
+
 /* Chatbox Container */
 .chat-window {
-    width: 90vw; /* Changed from fixed width to 90% of viewport width */
-    height: 90vh; /* Changed from fixed height to 90% of viewport height */
-    max-width: 600px; /* Set a maximum width for larger screens */
-    max-height: 800px; /* Set a maximum height */
+    width: 90vw; /* 90% of viewport width */
+    height: 90vh; /* 90% of viewport height */
+    max-width: 600px; /* Maximum width */
+    max-height: 800px; /* Maximum height */
     background-color: #fff;
     border-radius: 16px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
@@ -25,7 +81,7 @@
     justify-content: center;
     align-items: center;
     padding: 16px;
-    border-bottom: 1px solid #e0e0e0;
+    /* Removed border-bottom to eliminate separation line */
     background-color: #f5f5f5;
     transition: background-color 0.3s ease;
     text-align: center;
@@ -41,8 +97,8 @@
 
 .user-avatar-button {
     position: absolute;
-    top: 8px;
-    right: 8px;
+    top: -30px;
+    right: -140px;
 }
 
 .chat-header-left {
@@ -71,8 +127,9 @@
     flex-grow: 1; /* Allows messages to take up remaining space */
     padding: 16px;
     overflow-y: auto;
-    background-color: #f9f9f9;
+    background-color: #f5f5f5; /* Match header background to eliminate distinction */
     transition: background-color 0.3s ease;
+    /* Removed border-top to eliminate separation line */
 }
 
 /* User Messages */
@@ -88,7 +145,7 @@
 
 .message-container.user-message .message {
     order: 1;
-    background-color: #7b61ff;
+    background-color: #7b61ff; /* Purple color */
     color: white;
     border-radius: 20px 20px 0px 20px; /* Rounded corners for bubble effect */
     padding: 10px 16px;
@@ -110,8 +167,8 @@
 
 .message-container.assistant-message .message {
     order: 2;
-    background-color: #e9ecef;
-    color: #333;
+    background-color: #7b61ff; /* Restore distinct bubble color */
+    color: #fff; /* White text for readability */
     border-radius: 20px 20px 20px 0px; /* Rounded corners for bubble effect */
     padding: 10px 16px;
     margin: 5px 0;
@@ -124,10 +181,7 @@
     display: flex;
     align-items: center;
     margin-bottom: 16px;
-}
-
-.message {
-    /* Already styled above as bubble */
+    /* Removed borders or margins that might create separation lines */
 }
 
 /* Adjust avatar sizes if needed */
@@ -148,7 +202,7 @@
     flex: 0 0 auto; /* Keeps the input area at the bottom */
     display: flex;
     flex-direction: column;
-    border-top: 1px solid #e0e0e0;
+    /* Removed border-top to eliminate separation line */
     background-color: #f5f5f5;
     transition: background-color 0.3s ease;
     padding: 8px 16px;
@@ -196,25 +250,32 @@
     flex-wrap: wrap;
     padding: 8px 16px;
     background-color: #f5f5f5;
-    border-top: 1px solid #e0e0e0;
+    /* Removed border-top to eliminate separation line */
+    gap: 8px; /* Adds 8px space between buttons */
 }
 
 .action-button {
     text-transform: none;
-    margin: 4px;
     min-width: 140px;
     background-color: #7b61ff; /* Purple color */
     color: white;
+    padding: 8px 16px; /* Adjust padding for a sleeker look */
+    border-radius: 8px; /* Rounded corners for a modern feel */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    font-weight: 500; /* Slightly bolder text for readability */
+    font-size: 0.9rem; /* Adjust font size as needed */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    height: 40px; /* Fixed height */
+    line-height: 40px; /* Vertically center text */
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Space between icon and text */
 }
 
 .action-button:hover {
     background-color: #6c63ff; /* Slightly darker purple on hover */
-    color: white;
-}
-
-/* Hover Effects */
-.action-buttons Button:hover {
-    /* Already handled by .action-button:hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+    cursor: pointer; /* Pointer cursor for interactivity */
 }
 
 /* Responsive Design */
@@ -238,24 +299,6 @@
     }
 }
 
-
-/* General Reset for Inputs and Buttons */
-input[type="text"],
-input[type="email"],
-input[type="password"],
-textarea,
-.select-input, /* Example class for select elements */
-.button, /* Example class for buttons */
-.MuiOutlinedInput-root, /* MUI Outlined Input */
-.MuiInputBase-input, /* MUI Input Base */
-.MuiOutlinedInput-notchedOutline, /* MUI Notched Outline */
-.register-button, /* Your Register Button */
-.chat-header .MuiIconButton-root, /* Icon Buttons in Chat Header */
-.message-actions .MuiIconButton-root /* Icon Buttons in Message Actions */
-{
-    border-radius: 0 !important; /* Removes all border-radius */
-}
-
 /* Dark Mode Styles */
 .dark-theme .chat-window {
     background-color: #333;
@@ -263,7 +306,7 @@ textarea,
 }
 
 .dark-theme .chat-header {
-    background-color: #444;
+    background-color: #333; /* Match chat-window to eliminate distinction */
 }
 
 .dark-theme .chatbot-info h4,
@@ -272,7 +315,7 @@ textarea,
 }
 
 .dark-theme .messages-container {
-    background-color: #2a2a2a;
+    background-color: #333; /* Match chat-window to eliminate distinction */
 }
 
 .dark-theme .message-container.user-message .message {
@@ -281,12 +324,12 @@ textarea,
 }
 
 .dark-theme .message-container.assistant-message .message {
-    background-color: #555; /* Darker assistant messages */
+    background-color: #555; /* Distinct bubble color for assistant */
     color: #fff; /* White text for readability */
 }
 
 .dark-theme input[type="text"] {
-    background-color: #666; /* Lighter background for better contrast */
+    background-color: #555; /* Uniform background color */
     border-color: #999; /* Darker border for visibility */
     color: #fff; /* White text for readability */
 }
@@ -296,52 +339,163 @@ textarea,
 }
 
 .dark-theme .input-area {
-    background-color: #444;
+    background-color: #333; /* Match chat-window to eliminate distinction */
 }
 
 .dark-theme .message-avatar {
     filter: brightness(0.8);
 }
 
+/* Context Select Dropdown in Dark Mode */
 .dark-theme .context-select {
-    background-color: #555;
-    color: #fff;
-    border: 1px solid #777;
+    background-color: #555; /* Grey background */
+    color: #fff; /* White text */
+    border: 1px solid #777; /* Border color */
 }
 
 .dark-theme .context-select .MuiSelect-icon {
-    color: #fff;
+    color: #fff; /* White icon */
 }
 
 .dark-theme .context-select:hover {
-    background-color: #666;
+    background-color: #666; /* Slightly lighter grey on hover */
 }
 
 .dark-theme .context-select:focus {
-    background-color: #666;
-    border-color: #999;
+    background-color: #666; /* Slightly lighter grey on focus */
+    border-color: #999; /* Darker border on focus */
 }
 
 .dark-theme .context-label {
-    color: #eee;
+    color: #eee; /* Light grey color */
+}
+.dark-theme .MuiPaper-root {
+    background-color: #000 !important; /* Ensure background is black */
+    border: none !important; /* Remove any white border */
+    box-shadow: none !important; /* Remove shadow if causing border-like appearance */
+}
+
+.dark-theme .MuiMenuItem-root {
+    background-color: #000 !important; /* Ensure menu items are black */
+    color: #fff !important; /* White text for visibility */
+}
+
+.dark-theme .MuiMenuItem-root .MuiTypography-root,
+.dark-theme .MuiMenuItem-root .MuiListItemText-root {
+    color: #fff !important; /* Make sure text elements inside menu items are white */
+}
+
+.dark-theme .MuiSelect-icon {
+    color: #fff !important; /* Ensure the dropdown arrow remains visible */
+}
+/* User Profile and Context Dropdown Menu in Dark Mode */
+
+/* Profile Dropdown Menu */
+.dark-theme .profile-dropdown .MuiPaper-root {
+    background-color: #000 !important; /* Black background */
+    color: #fff !important; /* White text */
+}
+
+.dark-theme .MuiMenuItem-root:hover {
+    background-color: #1a1a1a !important; /* Slightly lighter black on hover */
+    color: #fff !important; /* Keep text white on hover */
+}
+
+/* Ensure any text inside menu items is also white */
+.dark-theme .MuiMenuItem-root * {
+    color: #fff !important; /* Force all child elements (text/icons) to be white */
+}
+
+.dark-theme input,
+.dark-theme textarea,
+.dark-theme select {
+    color: #fff !important; /* Force white text inside inputs */
+}
+
+
+.dark-theme .profile-dropdown .MuiMenuItem-root {
+    background-color: #000 !important; /* Black background */
+    color: #fff !important; /* White text */
+}
+
+.dark-theme .profile-dropdown .MuiMenuItem-root:hover {
+    background-color: #1a1a1a !important; /* Slightly lighter black on hover */
+    color: #fff !important; /* Maintain white text */
+}
+
+/* Context Dropdown Menu */
+.dark-theme .context-dropdown .MuiPaper-root {
+    background-color: #000 !important; /* Black background */
+    color: #fff !important; /* White text */
+    
+}
+
+.dark-theme .context-dropdown .MuiMenuList-root {
+    background-color: #000 !important; /* Black background for MenuList */
+}
+
+.dark-theme .context-dropdown .MuiMenuItem-root {
+    background-color: #000 !important; /* Black background */
+    color: #fff !important; /* White text */
+}
+
+.dark-theme .context-dropdown .MuiMenuItem-root:hover {
+    background-color: #1a1a1a !important; /* Slightly lighter black on hover */
+    color: #fff !important; /* Maintain white text */
+}
+
+/* Ensure Typography within Menu Items Inherits Color */
+.dark-theme .profile-dropdown .MuiMenuItem-root .MuiTypography-root,
+.dark-theme .context-dropdown .MuiMenuItem-root .MuiTypography-root {
+    color: #fff !important;
+}
+
+/* Action Buttons in Dark Mode */
+.dark-theme .action-buttons {
+    background-color: #333; /* Match chat-window to eliminate distinction */
+    /* No border-top to eliminate separation line */
 }
 
 .dark-theme .action-button {
-    background-color: #7b61ff; /* Purple color in dark mode */
+    background-color: #7b61ff; /* Maintain purple color in dark mode */
     color: white;
 }
 
 .dark-theme .action-button:hover {
-    background-color: #6c63ff;
-    color: white;
+    background-color: #6c63ff; /* Slightly darker purple on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+}
+
+/* Icons in Dark Mode */
+.dark-theme .fullscreen-icon .MuiSvgIcon-root,
+.dark-theme .settings-icon .MuiSvgIcon-root {
+    color: #fff; /* Maintain white color for fullscreen and settings icons */
+}
+
+/* Make sure icons are white too */
+.dark-theme .MuiMenuItem-root .MuiSvgIcon-root {
+    color: #fff !important;
+}
+
+.dark-theme .MuiMenuItem-root:hover .MuiSvgIcon-root {
+    color: #fff !important;
 }
 
 .dark-theme .message-actions .MuiIconButton-root {
-    color: #fff;
+    color: #fff; /* White color for edit and delete icons */
 }
 
 .dark-theme .message-actions .MuiIconButton-root:hover {
-    color: #ddd;
+    color: #ddd; /* Slightly lighter on hover */
+}
+
+/* Dark Mode Dropdown Icons */
+.dark-theme .MuiMenuItem-root .MuiSvgIcon-root {
+    color: #fff !important; /* White icons in menu items */
+}
+
+.dark-theme .MuiMenuItem-root:hover .MuiSvgIcon-root {
+    color: white !important; /* White icons on hover */
 }
 
 /* Light Mode Styles */
@@ -351,7 +505,7 @@ textarea,
 }
 
 .light-theme .chat-header {
-    background-color: #f5f5f5;
+    background-color: #fff; /* Match chat-window to eliminate distinction */
 }
 
 .light-theme .chatbot-info h4,
@@ -360,7 +514,7 @@ textarea,
 }
 
 .light-theme .messages-container {
-    background-color: #f9f9f9;
+    background-color: #fff; /* Match chat-window to eliminate distinction */
 }
 
 .light-theme .message-container.user-message .message {
@@ -369,63 +523,136 @@ textarea,
 }
 
 .light-theme .message-container.assistant-message .message {
-    background-color: #e9ecef;
+    background-color: #f0f0f0; /* Distinct bubble color for assistant in light mode */
     color: #333;
 }
 
 .light-theme input[type="text"] {
-    background-color: #fff;
-    border-color: #e0e0e0;
-    color: #333;
+    background-color: #fff; /* Uniform background color */
+    border-color: #e0e0e0; /* Light border for visibility */
+    color: #333; /* Dark text for readability */
+}
+
+.light-theme input[type="text"]::placeholder {
+    color: #ccc;
 }
 
 .light-theme .input-area {
-    background-color: #f5f5f5;
+    background-color: #fff; /* Match chat-window to eliminate distinction */
 }
 
 .light-theme .message-avatar {
     filter: none;
 }
 
+/* Context Select Dropdown in Light Mode */
 .light-theme .context-select {
-    background-color: #fff;
-    color: #333;
-    border: 1px solid #e0e0e0;
+    background-color: #fff; /* Light background */
+    color: #333; /* Dark text */
+    border: 1px solid #e0e0e0; /* Light border */
 }
 
 .light-theme .context-select .MuiSelect-icon {
-    color: #333;
+    color: #333; /* Dark icon */
 }
 
 .light-theme .context-select:hover {
-    background-color: #f0f0f0;
+    background-color: #f0f0f0; /* Slightly lighter on hover */
 }
 
 .light-theme .context-select:focus {
-    background-color: #f0f0f0;
-    border-color: #b0b0b0;
+    background-color: #f0f0f0; /* Slightly lighter on focus */
+    border-color: #b0b0b0; /* Darker border on focus */
 }
 
 .light-theme .context-label {
-    color: #333;
+    color: #333; /* Dark text */
+}
+
+/* User Profile and Context Dropdown Menu in Light Mode */
+
+/* Profile Dropdown Menu */
+.light-theme .profile-dropdown .MuiPaper-root {
+    background-color: #fff !important; /* White background */
+    color: #333 !important; /* Dark text */
+}
+
+.light-theme .profile-dropdown .MuiMenuItem-root {
+    background-color: #fff !important; /* White background */
+    color: #333 !important; /* Dark text */
+}
+
+.light-theme .profile-dropdown .MuiMenuItem-root:hover {
+    background-color: #e0e0e0 !important; /* Light grey on hover */
+    color: #333 !important; /* Maintain dark text */
+}
+
+/* Context Dropdown Menu */
+.light-theme .context-dropdown .MuiPaper-root {
+    background-color: #fff !important; /* White background */
+    color: #333 !important; /* Dark text */
+}
+
+.light-theme .context-dropdown .MuiMenuList-root {
+    background-color: #fff !important; /* White background for MenuList */
+}
+
+.light-theme .context-dropdown .MuiMenuItem-root {
+    background-color: #fff !important; /* White background */
+    color: #333 !important; /* Dark text */
+}
+
+.light-theme .context-dropdown .MuiMenuItem-root:hover {
+    background-color: #e0e0e0 !important; /* Light grey on hover */
+    color: #333 !important; /* Maintain dark text */
+}
+
+/* Ensure Typography within Menu Items Inherits Color */
+.light-theme .profile-dropdown .MuiMenuItem-root .MuiTypography-root,
+.light-theme .context-dropdown .MuiMenuItem-root .MuiTypography-root {
+    color: #333 !important;
+}
+
+/* Action Buttons in Light Mode */
+.light-theme .action-buttons {
+    background-color: #fff; /* Match chat-window to eliminate distinction */
+    /* No border-top to eliminate separation line */
 }
 
 .light-theme .action-button {
     background-color: #7b61ff; /* Purple color in light mode */
-    color: white;
+    color: white; /* White text */
 }
 
 .light-theme .action-button:hover {
-    background-color: #6c63ff;
-    color: white;
+    background-color: #6c63ff; /* Slightly darker purple on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+}
+
+/* Icons in Light Mode */
+.light-theme .fullscreen-icon .MuiSvgIcon-root {
+    color: #333; /* Default color for fullscreen icon in light mode */
+}
+
+.light-theme .settings-icon .MuiSvgIcon-root {
+    color: #333; /* Default color for settings icon in light mode */
 }
 
 .light-theme .message-actions .MuiIconButton-root {
-    color: #333;
+    color: #333; /* Dark color for edit and delete icons */
 }
 
 .light-theme .message-actions .MuiIconButton-root:hover {
-    color: #555;
+    color: #555; /* Slightly lighter on hover */
+}
+
+/* Light Mode Dropdown Icons */
+.light-theme .MuiMenuItem-root .MuiSvgIcon-root {
+    color: #333 !important; /* Dark icons in menu items */
+}
+
+.light-theme .MuiMenuItem-root:hover .MuiSvgIcon-root {
+    color: #333 !important; /* Maintain dark icons on hover */
 }
 
 /* Error Message */
@@ -442,4 +669,4 @@ textarea,
     z-index: 1000;
     max-width: 80%;
     text-align: center;
-  }
+}

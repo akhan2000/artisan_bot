@@ -31,6 +31,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (token: string) => {
     try {
+      console.log("Received Token:", token); // Debugging  
       localStorage.setItem('token', token);
       setIsAuthenticated(true);
       const userData = await getCurrentUser(); // Fetch user data from backend
