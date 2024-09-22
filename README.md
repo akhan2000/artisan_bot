@@ -63,8 +63,8 @@ Welcome to the **Artisan AI Chat Assistant** project! This application leverages
 
 - **FastAPI** (Python) for building RESTful APIs.
 - **SQLAlchemy** as the ORM for database management.
-- **SQLite** for local development database.
 - **PostgreSQL** for production database.
+- **SQLite** for local development database.
 - **Pydantic** for data validation and settings management.
 - **OpenAI API** for GPT-4 integration.
 
@@ -318,29 +318,29 @@ artisan-ai-chat-assistant/
 ## Contributing
 - We welcome contributions! Please follow these guidelines to contribute to the project.
 
-###Coding Standards
+### Coding Standards
 - Code Style: Follow the existing coding style and conventions.
 - Comments: Use clear and concise comments where necessary.
 - Testing: Write unit tests for new features and bug fixes.
 - Commits: Write descriptive commit messages.
 
 ### How to Contribute
-- 1. Fork the Repository
-    - Click on the "Fork" button at the top right of the repository page.
+1. **Fork the Repository**
+- Click on the "Fork" button at the top right of the repository page.
 
-- 2. Clone Your Fork
+2. **Clone Your Fork**
 ```bash
 git clone https://github.com/akhan2000/artisan_bot
 ```
 
-- 3. Create a New Branch
+3. **Create a New Branch**
 ```bash
 git checkout -b feature/your-feature-name
 ```
-- 4. Make Your Changes
+4. **Make Your Changes**
     -Implement your feature or bug fix.
 
-- 5. Commit and Push
+5. **Commit and Push**
 
 ```bash
 git add .
@@ -348,11 +348,10 @@ git commit -m "Add your commit message here"
 git push origin feature/your-feature-name
 ```
 
--6. Create a Pull Request
-
-    - Go to the original repository on GitHub.
-    - Click on "Pull Requests" and then "New Pull Request."
-    - Select your branch and submit the pull request.
+6. **Create a Pull Request**
+- Go to the original repository on GitHub.
+- Click on "Pull Requests" and then "New Pull Request."
+- Select your branch and submit the pull request.
 
 ### Reporting Issues
 - Use the GitHub Issues page to report bugs or request features.
