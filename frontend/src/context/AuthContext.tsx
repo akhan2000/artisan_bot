@@ -6,10 +6,9 @@ import { getCurrentUser } from '../services/api';
 interface AuthContextProps {
   user: User | null;
   isAuthenticated: boolean;
-  loading: boolean; 
   login: (token: string) => void;
   logout: () => void;
-  
+  loading: boolean; 
 }
 
 export const AuthContext = createContext<AuthContextProps>({
@@ -47,6 +46,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('token');
     setIsAuthenticated(false);
+    setUser(null);
     setTheme('light'); // Reset to light mode on logout (can have a seperate file for theme context for seperation of features, but currently keeping as is for speed purposes)
     localStorage.setItem('theme', 'light');
     document.body.className = 'light-theme';
@@ -62,20 +62,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const token = localStorage.getItem('token');
     if (token) {
       getCurrentUser()
-        .then(userData => setUser(userData))
+        .then(userData => {
+          setUser(userData);
+          setIsAuthenticated(true);
+        })
         .catch(error => {
           console.error("Failed to fetch user data:", error);
           logout();
+        })
+        .finally(() => {
+          setLoading(false); // Set loading to false after fetch attempt
         });
+    } else {
+      setLoading(false); // No token, set loading to false
     }
   }, []);
 
-  useEffect(() => {
-    document.body.className = theme === 'dark' ? 'dark-theme' : 'light-theme';
-  }, [theme]);
-
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

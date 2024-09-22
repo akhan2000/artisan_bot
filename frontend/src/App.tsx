@@ -7,9 +7,19 @@ import Login from './components/Login';
 import Register from './components/Register';
 import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
 import { AuthContext } from './context/AuthContext';
+import { CircularProgress } from '@mui/material';
 
 const App: React.FC = () => {
-  const { isAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated, loading } = useContext(AuthContext);
+
+  if (loading) {
+    // Render a loader while authentication state is being determined
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </div>
+    );
+  }
 
   return (
     <Router>

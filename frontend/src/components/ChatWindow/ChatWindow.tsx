@@ -34,9 +34,8 @@ import avatarImage from '../../assets/ava.png';
 import userAvatar from '../../assets/user-avatar.png';  
 import elijahAvatar from '../../assets/elijah.png';  
 import lucasAvatar from '../../assets/lucas.png';  
-import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import { User } from '../../types/User';
+
 
 interface ChatMessage extends APIMessage {
   isEditing?: boolean;
@@ -57,7 +56,6 @@ const ChatWindow: React.FC = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [context, setContext] = useState("Onboarding");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const menuOpen = Boolean(anchorEl);
   const [error, setError] = useState<string | null>(null);
