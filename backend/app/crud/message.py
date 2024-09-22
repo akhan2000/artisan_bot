@@ -115,7 +115,7 @@ def generate_response(user_input: str, context: str, db: Session, user_id: int, 
             model="gpt-4",  
             messages=messages,
             max_tokens=500,  
-            temperature=0.7 if context == "Marketing" else 0.5
+            temperature=0.5
         )
         return response.choices[0].message.content.strip()
 
