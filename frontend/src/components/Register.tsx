@@ -133,9 +133,13 @@ const Register: React.FC = () => {
           
           {/* Display General Errors */}
           {errors.general && (
-            <Typography color="error" align="center" sx={{ mt: 2 }}>
-              {errors.general}
-            </Typography>
+           <Typography
+           color="error"
+           align="center"
+           className="general-error"
+         >
+           {errors.general || ' '} {/* Non-breaking space to maintain height */}
+         </Typography>
           )}
 
           <Box mt={2}>
@@ -149,7 +153,7 @@ const Register: React.FC = () => {
               margin="normal"
               required
               error={Boolean(errors.username)}
-              helperText={errors.username}
+              helperText={errors.username || ' '}
             />
 
 
@@ -164,7 +168,7 @@ const Register: React.FC = () => {
               margin="normal"
               required
               error={Boolean(errors.email)}
-              helperText={errors.email}
+              helperText={errors.email || ' '}
             />
 
 
@@ -179,7 +183,7 @@ const Register: React.FC = () => {
               margin="normal"
               required
               error={Boolean(errors.password)}
-              helperText={errors.password}
+              helperText={errors.password || ' '}
             />
 
 
@@ -194,7 +198,7 @@ const Register: React.FC = () => {
               margin="normal"
               required
               error={Boolean(errors.confirmPassword)}
-              helperText={errors.confirmPassword}
+              helperText={errors.confirmPassword || ' '}
             />
 
 

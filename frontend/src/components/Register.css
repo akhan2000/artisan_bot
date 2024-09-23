@@ -15,10 +15,12 @@
 }
 
 .register-left-column {
-  flex: 1;
+  flex: 1; /* Prevents the column from growing or shrinking */
   background-image: url("https://artisanai-storage.sfo3.digitaloceanspaces.com/login/login_banner_copy.webp");
   background-size: cover;
   background-position: center;
+  /* Optionally, set a minimum width to maintain layout on smaller screens */
+  min-width: 300px;
 }
 
 .register-right-column {
@@ -29,6 +31,13 @@
   justify-content: center;
   background-color: #ffffff; /* Standardize */
 }
+.register-right-column .MuiFormHelperText-root {
+  height: 0.3em; /* Further reduced height */
+  font-size: 0.7rem; /* Further reduced font size */
+  line-height: 1.1;
+  margin-top: 1px; /* Further reduced margin */
+}
+
 
 .artisan-logo {
   height: 50px;
@@ -58,6 +67,14 @@
   height: 100%;
   background-size: cover;
   background-position: center;
+}
+
+.general-error {
+  min-height: 1em; /* Fixed height */
+  font-size: 0.75rem; /* Smaller font size */
+  line-height: 1.2;
+  margin-top: 8px; /* Adjust as needed */
+  color: #d32f2f; /* MUI's error color */
 }
 
 
