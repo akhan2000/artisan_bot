@@ -57,7 +57,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     document.body.className = 'light-theme';
     setLoading(false);
   };
-
   useEffect(() => {
     document.body.className = theme === 'dark' ? 'dark-theme' : 'light-theme';
   }, [theme]);
@@ -86,9 +85,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initializeAuth();
 }, []);
 
-  
+ 
 
-  
+
 
   return (
     <AuthContext.Provider value={{ user, isAuthenticated, login, logout, loading }}>
