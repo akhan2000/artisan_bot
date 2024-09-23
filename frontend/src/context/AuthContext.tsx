@@ -9,6 +9,8 @@ interface AuthContextProps {
   login: (token: string) => void;
   logout: () => void;
   loading: boolean; 
+  theme: string;
+  setTheme: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export const AuthContext = createContext<AuthContextProps>({
@@ -17,6 +19,8 @@ export const AuthContext = createContext<AuthContextProps>({
   login: () => {},
   logout: () => {},
   loading: true,
+  theme: 'light',
+  setTheme: () => {},
 });
 
 interface AuthProviderProps {
@@ -26,7 +30,9 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!localStorage.getItem('token'));
-  const [theme, setTheme] = useState<string>(localStorage.getItem('theme') || 'light');
+  const [theme, setTheme] = useState<string>(() => {
+    return localStorage.getItem('theme') || 'light';
+  });
   const [loading, setLoading] = useState<boolean>(true);
 
   const login = async (token: string) => {
@@ -57,40 +63,39 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     document.body.className = 'light-theme';
     setLoading(false);
   };
+
   useEffect(() => {
     document.body.className = theme === 'dark' ? 'dark-theme' : 'light-theme';
+    localStorage.setItem('theme', theme);
   }, [theme]);
-  
+
+
   useEffect(() => {
     const initializeAuth = async () => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            try {
-                setLoading(true); // Start loading
-                const userData = await getCurrentUser();
-                setUser(userData);
-                setIsAuthenticated(true);
-                console.log("Initialized Auth - User Data:", userData);
-            } catch (error) {
-                console.error("Failed to fetch user data on init:", error);
-                logout();
-            } finally {
-                setLoading(false);
-            }
-        } else {
-            setLoading(false);
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          setLoading(true); // Start loading
+          const userData = await getCurrentUser();
+          setUser(userData);
+          setIsAuthenticated(true);
+          console.log("Initialized Auth - User Data:", userData);
+        } catch (error) {
+          console.error("Failed to fetch user data on init:", error);
+          logout();
+        } finally {
+          setLoading(false);
         }
+      } else {
+        setLoading(false);
+      }
     };
 
     initializeAuth();
-}, []);
-
- 
-
-
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, loading, theme, setTheme }}>
       {children}
     </AuthContext.Provider>
   );
