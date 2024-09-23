@@ -166,6 +166,19 @@ const Register: React.FC = () => {
             {/* Password Field */}
             <TextField
               fullWidth
+              label="Password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              type="password"
+              margin="normal"
+              required
+              error={Boolean(errors.password)}
+              helperText={errors.password}
+            />
+
+            {/* Password Field */}
+            <TextField
+              fullWidth
               label="Confirm Password"
               value={confirmPassword}
               onChange={e => setConfirmPassword(e.target.value)}
