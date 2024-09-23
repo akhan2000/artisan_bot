@@ -54,15 +54,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    setIsAuthenticated(false);
-    setUser(null);
-    setTheme('light'); // Reset to light mode on logout (can have a seperate file for theme context for seperation of features, but currently keeping as is for speed purposes)
-    localStorage.setItem('theme', 'light');
-    document.body.className = 'light-theme';
-    setLoading(false);
-  };
+    const logout = (resetTheme: boolean = false) => {
+      console.log(`Logging out. Reset theme: ${resetTheme}`);
+      localStorage.removeItem('token');
+      setIsAuthenticated(false);
+      setUser(null);
+  
+      if (resetTheme) {
+        setTheme('light'); // Reset to light mode
+        localStorage.setItem('theme', 'light');
+        document.body.className = 'light-theme';
+        console.log("Theme reset to light.");
+      }
+  
+      setLoading(false);
+      console.log("User logged out, token removed from storage");
+    };
 
   useEffect(() => {
     document.body.className = theme === 'dark' ? 'dark-theme' : 'light-theme';
