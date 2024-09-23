@@ -61,27 +61,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     document.body.className = theme === 'dark' ? 'dark-theme' : 'light-theme';
   }, [theme]);
-
+  
   useEffect(() => {
-    // On component mount, check if token exists and fetch user data
-    const token = localStorage.getItem('token');
-    if (token) {
-      getCurrentUser()
-        .then(userData => {
-          setUser(userData);
-          setIsAuthenticated(true);
-        })
-        .catch(error => {
-          console.error("Failed to fetch user data:", error);
-          logout();
-        })
-        .finally(() => {
-          setLoading(false); // Set loading to false after fetch attempt
-        });
-    } else {
-      setLoading(false); // No token, set loading to false
-    }
-  }, []);
+    const initializeAuth = async () => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                setLoading(true); // Start loading
+                const userData = await getCurrentUser();
+                setUser(userData);
+                setIsAuthenticated(true);
+                console.log("Initialized Auth - User Data:", userData);
+            } catch (error) {
+                console.error("Failed to fetch user data on init:", error);
+                logout();
+            } finally {
+                setLoading(false);
+            }
+        } else {
+            setLoading(false);
+        }
+    };
+
+    initializeAuth();
+}, []);
+
+  
+
+  
 
   return (
     <AuthContext.Provider value={{ user, isAuthenticated, login, logout, loading }}>
