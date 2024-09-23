@@ -116,7 +116,8 @@ const Register: React.FC = () => {
     return (
       username.trim().length >= 3 &&
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
-      password.length >= 6
+      password.length >= 6 &&
+      confirmPassword === password
     );
   };
 
@@ -144,11 +145,13 @@ const Register: React.FC = () => {
               label="Username"
               value={username}
               onChange={e => setUsername(e.target.value)}
+              onBlur={() => validate()} // Trigger validation on blur
               margin="normal"
               required
               error={Boolean(errors.username)}
               helperText={errors.username}
             />
+
 
             {/* Email Field */}
             <TextField
@@ -156,6 +159,7 @@ const Register: React.FC = () => {
               label="Email"
               value={email}
               onChange={e => setEmail(e.target.value)}
+              onBlur={() => validate()}
               type="email"
               margin="normal"
               required
@@ -163,12 +167,14 @@ const Register: React.FC = () => {
               helperText={errors.email}
             />
 
+
             {/* Password Field */}
             <TextField
               fullWidth
               label="Password"
               value={password}
               onChange={e => setPassword(e.target.value)}
+              onBlur={() => validate()}
               type="password"
               margin="normal"
               required
@@ -176,18 +182,21 @@ const Register: React.FC = () => {
               helperText={errors.password}
             />
 
-            {/* Password Field */}
+
+            {/* Confirm Password Field */}
             <TextField
               fullWidth
               label="Confirm Password"
               value={confirmPassword}
               onChange={e => setConfirmPassword(e.target.value)}
+              onBlur={() => validate()}
               type="password"
               margin="normal"
               required
               error={Boolean(errors.confirmPassword)}
               helperText={errors.confirmPassword}
             />
+
 
             {/* First Name Field (Optional) */}
             <TextField
