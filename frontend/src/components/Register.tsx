@@ -35,6 +35,7 @@ const Register: React.FC = () => {
       username?: string;
       email?: string;
       password?: string;
+      confirmPassword?: string;
       general?: string;
     } = {};
 
