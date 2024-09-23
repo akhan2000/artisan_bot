@@ -112,7 +112,7 @@ Ensure you have the following installed:
 1. **Clone the Repository**
 
    ```bash
-   git clone https://github.com/yourusername/artisan-ai-chat-assistant.git
+   git clone https://github.com/akhan2000/artisan_bot.git
    cd artisan-ai-chat-assistant/backend
 
 2. **Create a Virtual Environment**
