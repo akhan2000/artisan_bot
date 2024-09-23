@@ -19,7 +19,7 @@ class UserRead(BaseModel):
     last_name: Optional[str]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class UserUpdate(BaseModel):
     first_name: Optional[str] = None
