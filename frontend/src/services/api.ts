@@ -18,6 +18,16 @@ function getAuthHeaders() {
     const token = localStorage.getItem('token');
     return token ? { Authorization: `Bearer ${token}` } : {};
 }
+function mapUserData(data: any): User {
+    return {
+        id: data.id,
+        username: data.username,
+        email: data.email,
+        firstName: data.first_name,
+        lastName: data.last_name,
+        // Map other fields as necessary
+    };
+}
 
 /**
  * Interface representing the structure of a Message object.
@@ -240,12 +250,12 @@ export async function register(username: string, password: string, email: string
  */
 export async function getCurrentUser(): Promise<User> {
     try {
-        const response = await axios.get<User>(`${API_URL}/users/me`, {
+        const response = await axios.get<any>(`${API_URL}/users/me`, {
             headers: {
                 ...getAuthHeaders(),
             },
         });
-        return response.data;
+        return mapUserData(response.data);
     } catch (error) {
         console.error("Error fetching current user:", error);
         throw error;

@@ -7,7 +7,7 @@ def seed():
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
-        # Create a test user
+        # test user
         test_user = db.query(User).filter(User.username == "testuser").first()
         if not test_user:
             test_user = User(
@@ -21,7 +21,7 @@ def seed():
             db.commit()
             db.refresh(test_user)
         
-        # Create some test messages
+        # test messages
         if not db.query(Message).filter(Message.user_id == test_user.id).first():
             messages = [
                 Message(role="assistant", content="Welcome to the chatbot!", user_id=test_user.id),

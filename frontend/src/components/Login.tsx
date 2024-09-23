@@ -18,6 +18,7 @@ const Login: React.FC = () => {
       const { access_token } = response;
       await login(access_token); // Update context with token and fetch user data
       navigate('/'); // Redirect to home page after login
+      console.log("Navigation to '/' triggered");
     } catch (error: any) {
       console.error('Error during login:', error);
       setError(error.response?.data?.detail || 'Login failed');

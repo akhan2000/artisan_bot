@@ -11,6 +11,8 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const { isAuthenticated, user, loading } = useContext(AuthContext);
+    console.log("ProtectedRoute - isAuthenticated:", isAuthenticated, "User:", user, "Loading:", loading); // Debugging
+
   
     if (loading) {
       return (

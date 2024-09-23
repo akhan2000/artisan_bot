@@ -32,15 +32,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (token: string) => {
     try {
       console.log("Received Token:", token); // Debugging  
+      setLoading(true);
       localStorage.setItem('token', token);
       setIsAuthenticated(true);
       const userData = await getCurrentUser(); // Fetch user data from backend
+      console.log("Fetched User Data:", userData);
       setUser(userData);
     } catch (error) {
         console.error("Failed to fetch user data:", error);
         logout();
+        throw error;
       } finally {
         setLoading(false); // Set loading to false after login attempt
+        console.log("Login process completed. Loading:", loading);
       }
     };
 
