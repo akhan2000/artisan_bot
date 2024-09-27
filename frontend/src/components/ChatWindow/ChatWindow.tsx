@@ -234,6 +234,7 @@ const ChatWindow: React.FC = () => {
       }
       finally {
         setIsSaving(false); // End saving
+      }
     }
   };
   
@@ -564,3 +565,4 @@ const ChatWindow: React.FC = () => {
 };
   
   export default ChatWindow;
+
