@@ -71,8 +71,11 @@ const ChatWindow: React.FC = () => {
   }, [context]);
   
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (editingMessageId === null) {
+      scrollToBottom();
+    }
+  }, [messages, editingMessageId]);
+  
 
   useEffect(() => {
     if (error) {
