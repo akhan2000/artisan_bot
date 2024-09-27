@@ -344,9 +344,9 @@ const ChatWindow: React.FC = () => {
   };
   
   return (
-  <div className={`chat-window ${theme}`}>
+  <div className={`chat-window ${theme}`} data-testid="chat-window" >
     <div className="chat-header">
-      <IconButton onClick={handleFullscreen} className="fullscreen-icon">
+      <IconButton onClick={handleFullscreen} className="fullscreen-icon" aria-label="Toggle fullscreen mode">
         <FullscreenIcon />
       </IconButton>
 
@@ -360,6 +360,7 @@ const ChatWindow: React.FC = () => {
               : lucasAvatar
           }
           alt="Chatbot Avatar"
+          aria-label="Chatbot Avatar"
         />
         <div className="chatbot-info">
           <h4>
@@ -374,7 +375,7 @@ const ChatWindow: React.FC = () => {
         </div>
       </div>
 
-      <IconButton onClick={handleAvatarClick} className="user-avatar-button">
+      <IconButton onClick={handleAvatarClick} className="user-avatar-button" aria-label="User profile">
         <Avatar src={userAvatar} alt="User Avatar" />
       </IconButton>
     </div>
@@ -494,6 +495,7 @@ const ChatWindow: React.FC = () => {
             size="small"
             multiline
             maxRows={4} // Limit the number of visible rows
+            aria-label="Message input"
             disabled={isSending}
             onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
@@ -508,6 +510,7 @@ const ChatWindow: React.FC = () => {
             <Select
             value={context}
             onChange={handleContextChange}
+            aria-label="Chat context selection"
             className="context-select"
             variant="outlined"
             size="small"
@@ -524,7 +527,7 @@ const ChatWindow: React.FC = () => {
           <IconButton onClick={toggleSettings}>
             <SettingsIcon />
           </IconButton>
-          <IconButton color="primary" onClick={handleSend} disabled={isSending}>
+          <IconButton color="primary" onClick={handleSend} disabled={isSending} aria-label="Send message">
   <SendIcon />
 </IconButton>
         </div>

@@ -21,6 +21,8 @@
     "jsx": "react-jsx"
   },
   "include": [
-    "src"
-, "src/components/ChatWindow"  ]
+    "src",
+    "src/components/ChatWindow"
+  ]
 }
+
