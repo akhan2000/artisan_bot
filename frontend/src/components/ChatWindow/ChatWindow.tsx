@@ -20,6 +20,7 @@ import {
   Typography
 } from "@mui/material";
 import SendIcon from '@mui/icons-material/Send';
+import CircularProgress from '@mui/material/CircularProgress';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -52,6 +53,7 @@ const ChatWindow: React.FC = () => {
   const [input, setInput] = useState<string>("");
   const [editingMessageId, setEditingMessageId] = useState<number | null>(null);
   const [isSending, setIsSending] = useState<boolean>(false);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
   const [theme, setTheme] = useState("light");
   const [language, setLanguage] = useState("en");
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -212,6 +214,7 @@ const ChatWindow: React.FC = () => {
     const message = messages.find(msg => msg.id === id);
     if (message) {
       try {
+        setIsSaving(true);
         if (message.content.trim() === "") {
           await handleDelete(id);
         } else {
@@ -229,6 +232,8 @@ const ChatWindow: React.FC = () => {
         console.error("Failed to update message:", error);
         setError("Failed to update message. Please try again.");
       }
+      finally {
+        setIsSaving(false); // End saving
     }
   };
   
@@ -444,7 +449,7 @@ const ChatWindow: React.FC = () => {
                   size="small"
                   fullWidth
                 />
-                <Button onClick={() => saveEdit(message.id)} variant="contained" color="primary">
+                <Button onClick={() => saveEdit(message.id)} variant="contained" color="primary" disabled={isSaving} startIcon={isSaving ? <CircularProgress size={20} /> : null}>
                   Save
                 </Button>
               </div>
