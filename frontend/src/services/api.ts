@@ -16,8 +16,8 @@ const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
  */
 function getAuthHeaders() {
     const token = localStorage.getItem('token');
-    return token ? { Authorization: `Bearer ${token}` } : {};
-}
+    return token ? { Authorization: `Bearer ${token}` } : undefined;
+  }
 function mapUserData(data: any): User {
     return {
         id: data.id,
@@ -59,7 +59,7 @@ export async function sendMessage(content: string, role: string = "user", contex
         const response = await axios.post<Message>(`${API_URL}/messages/`, { content, role, context }, {
             headers: {
                 "Content-Type": "application/json",
-                ...getAuthHeaders(), // Attach auth headers if available
+                ...(getAuthHeaders() || {}), // Attach auth headers if available
             },
         });
         return response.data;
