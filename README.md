@@ -362,12 +362,10 @@ This project is licensed under the MIT License.
 
 ## Contact Information
 
-- Email: support@artisan.co
-- Website: https://www.artisan.co
+- LinkedIn: https://www.linkedin.com/in/asfandyar-khan2000/
 - GitHub: https://github.com/akhan2000/artisan_bot
 
 ## Acknowledgments
-- Artisan: Big thank you to Jaspar, and the engineering team for the opportunity and inspiration!
-- OpenAI: For providing the GPT-4 API.
+- OpenAI: For providing the GPT-o1 API.
 - Contributors: Thanks to all who have contributed to this project.
 - Community: For the continuous support and feedback.
